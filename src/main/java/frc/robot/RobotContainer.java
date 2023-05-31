@@ -12,8 +12,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 public class RobotContainer {
 
   private WPI_TalonSRX motor;
+  private WPI_TalonSRX motor2;
   public RobotContainer() {
     motor = new WPI_TalonSRX(1);
+    motor2 = new WPI_TalonSRX(2);
     configureBindings();
   }
 
