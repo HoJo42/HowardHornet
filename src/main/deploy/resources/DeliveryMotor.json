@@ -1,0 +1,8 @@
+{
+    "port": 10,
+    "isInverted": true,
+    "neutralOperation": "BRAKE",
+    "motorType": "BRUSHED",
+    "countsPerRevolution": 2048,
+    "currentLimit": 40 
+}
