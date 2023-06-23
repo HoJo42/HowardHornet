@@ -1,19 +1,19 @@
 package frc.robot.Subsystem.Configs;
 
 public class DeliveryConfig {
-    private double INTAKE_SPEED; 
-    private double OUTTAKE_SPEED;
-    private double SHOOT_SPEED;
+    private double intakeSpeed; 
+    private double outTakeSpeed;
+    private double shootSpeed;
 
     public double getIntakeSpeed() {
-        return INTAKE_SPEED;
+        return intakeSpeed;
     }
 
     public double getOutTakeSpeed() {
-        return OUTTAKE_SPEED;
+        return outTakeSpeed;
     }
 
     public double getShootSpeed() {
-        return SHOOT_SPEED;
+        return shootSpeed;
     }
 }
