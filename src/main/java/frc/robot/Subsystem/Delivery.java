@@ -6,6 +6,7 @@ package frc.robot.Subsystem;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Subsystem.Configs.DeliveryConfig;
 import lib.MotorController.SOTA_MotorController;
 
 public class Delivery extends SubsystemBase {
@@ -20,10 +21,14 @@ public class Delivery extends SubsystemBase {
   private double SHOOT_SPEED;
 
   /** Creates a new Delivery. */
-  public Delivery(SOTA_MotorController motor, DigitalInput topSensor, DigitalInput bottomSensor) {
+  public Delivery(SOTA_MotorController motor, DigitalInput topSensor, DigitalInput bottomSensor, DeliveryConfig config) {
     this.motor = motor;
     this.topSensor = topSensor;
     this.bottomSensor = bottomSensor;
+
+    this.INTAKE_SPEED = config.getIntakeSpeed();
+    this.OUTTAKE_SPEED = config.getOutTakeSpeed();
+    this.SHOOT_SPEED = config.getShootSpeed();
   }
 
   /**
