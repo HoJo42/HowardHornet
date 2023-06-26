@@ -7,7 +7,7 @@ package frc.robot.Subsystem;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Subsystem.Configs.DeliveryConfig;
-import lib.MotorController.SOTA_MotorController;
+import SOTAlib.MotorController.SOTA_MotorController;
 
 public class Delivery extends SubsystemBase {
 

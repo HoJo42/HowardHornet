@@ -18,11 +18,11 @@ import frc.robot.Subsystem.Delivery;
 import frc.robot.Subsystem.Intake;
 import frc.robot.Subsystem.Configs.DeliveryConfig;
 import frc.robot.Subsystem.Configs.IntakeConfig;
-import lib.Config.ConfigUtils;
-import lib.Config.MotorControllerConfig;
-import lib.Factories.MotorControllerFactory;
-import lib.MotorController.SOTA_MotorController;
-import lib.MotorController.SparkMaxDelegate;
+import SOTAlib.Config.ConfigUtils;
+import SOTAlib.Config.MotorControllerConfig;
+import SOTAlib.Factories.MotorControllerFactory;
+import SOTAlib.MotorController.SOTA_MotorController;
+import SOTAlib.MotorController.SparkMaxDelegate;
 
 public class RobotContainer {
 
