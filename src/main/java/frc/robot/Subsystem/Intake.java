@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Subsystem.Configs.IntakeConfig;
-import lib.MotorController.SOTA_MotorController;
+import SOTAlib.MotorController.SOTA_MotorController;
 
 public class Intake extends SubsystemBase {
 

@@ -1,4 +1,5 @@
 {
+    "motorModel":"SparkMax",
     "port": 9,
     "isInverted": false,
     "neutralOperation": "BRAKE",
