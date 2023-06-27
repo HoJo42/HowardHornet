@@ -41,7 +41,7 @@ public class RobotContainer {
       IntakeConfig intakeConfig = mConfigUtils.readFromClassPath(IntakeConfig.class, "Intake");
 
       MotorControllerConfig intakeMotorConfig = mConfigUtils.readFromClassPath(MotorControllerConfig.class, "IntakeMotor");
-      SOTA_MotorController intakeMotor = MotorControllerFactory.generateSparkDelegate(intakeMotorConfig);
+      SOTA_MotorController intakeMotor = MotorControllerFactory.generateMotorController(intakeMotorConfig);
       DoubleSolenoid intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, 1, 0);
       
       this.mIntake = new Intake(intakeMotor, intakeSolenoid, intakeConfig);
@@ -54,7 +54,7 @@ public class RobotContainer {
       DeliveryConfig deliveryConfig = mConfigUtils.readFromClassPath(DeliveryConfig.class, "Delivery");
 
       MotorControllerConfig deliveryMotorConfig = mConfigUtils.readFromClassPath(MotorControllerConfig.class, "DeliveryMotor");
-      SOTA_MotorController deliveryMotor = MotorControllerFactory.generateTalon(deliveryMotorConfig);
+      SOTA_MotorController deliveryMotor = MotorControllerFactory.generateMotorController(deliveryMotorConfig);
       this.mDelivery = new Delivery(deliveryMotor, new DigitalInput(7), new DigitalInput(0), deliveryConfig);
       
     } catch (Exception e) {

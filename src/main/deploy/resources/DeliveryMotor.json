@@ -1,4 +1,5 @@
 {
+    "motorModel":"Talon",
     "port": 10,
     "isInverted": true,
     "neutralOperation": "BRAKE",
