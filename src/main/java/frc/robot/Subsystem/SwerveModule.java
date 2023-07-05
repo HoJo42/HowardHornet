@@ -5,71 +5,60 @@ import java.lang.annotation.Native;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax;
 
+import SOTAlib.MotorController.SOTA_MotorController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Subsystem.Configs.SwerveModuleConfig;
 
-public class SwerveModule extends SubsystemBase{
-    
-    private WPI_TalonSRX speedMotor;
-    private ProfiledPIDController speedPID;
+public class SwerveModule extends SubsystemBase {
 
-    private CANSparkMax rotationMotor;
-    private AnalogEncoder rotationEncoder;
-    private ProfiledPIDController rotationPID;
-    
-    private final double kRotationCountsPerRevolution;
+  private SOTA_MotorController speedMotor;
+  private ProfiledPIDController speedPID;
 
-    public SwerveModule(WPI_TalonSRX speedMotor,
-                        ProfiledPIDController speedPID,
-                        CANSparkMax rotationMotor,
-                        AnalogEncoder rotationEncoder,
-                        ProfiledPIDController rotationPID,
-                        double angleCountsPerRevolution){
-        
-        this.speedMotor = speedMotor;
-        this.speedPID = speedPID;
-        this.rotationMotor = rotationMotor;
-        this.rotationEncoder = rotationEncoder;
-        this.rotationPID = rotationPID;
-        this.kRotationCountsPerRevolution = angleCountsPerRevolution;
-    }
+  private SOTA_MotorController rotationMotor;
+  private ProfiledPIDController rotationPID;
 
-    public void setModule(SwerveModuleState state){
-        state = SwerveModuleState.optimize(state, getRotation2d());
+  private final double kRotationCountsPerRevolution;
 
-        double rotationSetpointnative = radiansToNative(state.angle.getRadians());
-        double rotationPIDOutput = rotationPID.calculate(getAngle(), rotationSetpointnative);
+  public SwerveModule(SOTA_MotorController speedMotor,
+      SOTA_MotorController rotationMotor,
+      SwerveModuleConfig config) {
 
-        if (state.speedMetersPerSecond == 0.0)
-            rotationMotor.setVoltage(0);
-        else
-            rotationMotor.setVoltage(rotationPIDOutput);
+    this.speedMotor = speedMotor;
+    this.speedPID = new ProfiledPIDController(config.getSpeedP(), config.getSpeedI(), config.getSpeedD(),
+        new Constraints(config.getSpeedMaxVelocity(), config.getSpeedMaxAcceleration()));
 
-        
-    }
+    this.rotationMotor = rotationMotor;
+    this.rotationPID = new ProfiledPIDController(config.getAngleP(), config.getAngleI(), config.getAngleD(),
+        new Constraints(config.getAngleMaxVelocity(), config.getAngleMaxAcceleration()));
 
-    private double radiansToNative(double radians) {
-        return radians / (2 * Math.PI) * kRotationCountsPerRevolution;
-    }
-
-    public Rotation2d getRotation2d(){
-        return new Rotation2d(nativeToRadians(getAngle()));
-    }
-
-    /** 
-   * Converts native absolute encoder counts to radians
-   * @param encoderCounts Absolute encoder counts
-   * @return Angle of the module in radians
-   */
-  public double nativeToRadians(double encoderCounts) {
-    return encoderCounts * (2 * Math.PI) / kRotationCountsPerRevolution;
+    this.kRotationCountsPerRevolution = config.getAngleCountsPerRevolution();
   }
 
-  public double getAngle() {
-    return rotationEncoder.getAbsolutePosition();
+  public void setModule(SwerveModuleState state){
+    state = SwerveModuleState.optimize(state, getRotation2d());
+
+    double angleCounts = radsToNative(state.angle.getRadians());
+    double anglePIDOutput = rotationPID.calculate(rotationMotor.getEncoderPosition(), angleCounts);
+
+    rotationMotor.setVoltage(state.speedMetersPerSecond == 0 ? 0 : anglePIDOutput);
   }
+
+  private Rotation2d getRotation2d() {
+    return new Rotation2d(getRadians());
+  }
+
+  private double getRadians() {
+    return (kRotationCountsPerRevolution * rotationMotor.getEncoderPosition()) / 2 * Math.PI;
+  }
+
+  private double radsToNative(double rads) {
+    return (2 * Math.PI * rads) / kRotationCountsPerRevolution;
+  }
+
 }
