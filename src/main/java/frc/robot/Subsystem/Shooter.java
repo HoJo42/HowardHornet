@@ -99,7 +99,7 @@ public class Shooter extends SubsystemBase {
    * @return the motors RPM, not the flywheels
    */
   public double getMotorRPM() {
-    return Math.abs(motor1.getEncoder().getVelocity());
+    return Math.abs(motor1.getEncoderVelocity());
   }
 
   /**

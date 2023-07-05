@@ -1,0 +1,9 @@
+{
+    "motorModel":"SparkMax",
+    "port": 12,
+    "isInverted": true,
+    "neutralOperation": "COAST",
+    "motorType": "BRUSHLESS",
+    "countsPerRevolution": 2048,
+    "currentLimit": 40 
+}
