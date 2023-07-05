@@ -6,8 +6,6 @@ package frc.robot.Subsystem;
 
 import java.util.ArrayList;
 
-import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
-
 import SOTAlib.MotorController.SOTA_MotorController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -24,7 +22,7 @@ public class Shooter extends SubsystemBase {
   private DoubleSolenoid hoodSolenoid;
   private SOTA_MotorController motor1;
   private SOTA_MotorController motor2;
-  
+
   private SimpleMotorFeedforward feedforward;
   private PIDController speedPID;
 
@@ -35,7 +33,8 @@ public class Shooter extends SubsystemBase {
   private double defaultRPM;
 
   /** Creates a new Shooter. */
-  public Shooter(SOTA_MotorController motor1, SOTA_MotorController motor2, DoubleSolenoid hoodSolenoid, ShooterConfig config) {
+  public Shooter(SOTA_MotorController motor1, SOTA_MotorController motor2, DoubleSolenoid hoodSolenoid,
+      ShooterConfig config) {
     this.motor1 = motor1;
     this.motor2 = motor2;
     this.hoodSolenoid = hoodSolenoid;
@@ -58,6 +57,7 @@ public class Shooter extends SubsystemBase {
 
   /**
    * Checks if it is ready to shoot with the average speed of the flywheel
+   * 
    * @return Whether or not it is ready to shoot
    */
   public boolean readyToShoot() {
@@ -72,32 +72,33 @@ public class Shooter extends SubsystemBase {
     return Math.abs(averageSpeed - speedPID.getSetpoint()) < 100;
   }
 
-  
-
   /**
    * Sets the RPM of the motor with PID and FF
+   * 
    * @param rpm Setpoint for the motor's RPM
    */
   public void setMotorRPM(double rpm) {
     rpm = shooterRPM.getDouble(defaultRPM);
-     double motorInput = feedforward.calculate(rpm) + speedPID.calculate(getMotorRPM(), rpm);
-     motor1.setVoltage(motorInput);
-     motor2.setVoltage(motorInput);
-     speedPID.setSetpoint(rpm);
-   }
+    double motorInput = feedforward.calculate(rpm) + speedPID.calculate(getMotorRPM(), rpm);
+    motor1.setVoltage(motorInput);
+    motor2.setVoltage(motorInput);
+    speedPID.setSetpoint(rpm);
+  }
 
-   public void initializeShootingSequence() {
-    double motorInput = feedforward.calculate(shooterRPM.getDouble(defaultRPM)) + speedPID.calculate(getMotorRPM(), shooterRPM.getDouble(defaultRPM));
+  public void commenceShootingSequence() {
+    double motorInput = feedforward.calculate(shooterRPM.getDouble(defaultRPM))
+        + speedPID.calculate(getMotorRPM(), shooterRPM.getDouble(defaultRPM));
     motor1.setVoltage(motorInput);
     motor2.setVoltage(motorInput);
     speedPID.setSetpoint(shooterRPM.getDouble(defaultRPM));
   }
 
-   /**
+  /**
    * Returns the motor RPM
+   * 
    * @return the motors RPM, not the flywheels
    */
-  public double getMotorRPM(){
+  public double getMotorRPM() {
     return Math.abs(motor1.getEncoder().getVelocity());
   }
 
@@ -116,7 +117,8 @@ public class Shooter extends SubsystemBase {
   }
 
   /**
-   * Updates the speed sample for the flywheel speed to be used in {@link #readyToShoot()}
+   * Updates the speed sample for the flywheel speed to be used in
+   * {@link #readyToShoot()}
    */
   private void updateSpeedSample() {
     speedSample.add(getMotorRPM());
