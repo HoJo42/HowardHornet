@@ -24,7 +24,7 @@ public class SwerveDrive extends SubsystemBase {
     this.shifter = shifter;
     shifter.shift(0);
     for (SwerveModule loopModule : modules) {
-      loopModule.setCurrentGear(0);
+      loopModule.updateGear();
     }
     this.fieldCentric = true;
     this.mKinematics = config.generateKinematics();
@@ -80,7 +80,7 @@ public class SwerveDrive extends SubsystemBase {
   public void shift(int gear) {
     shifter.shift(gear);
     for (SwerveModule loopModule : modules) {
-      loopModule.setCurrentGear(gear);
+      loopModule.updateGear();
     }
   }
 }

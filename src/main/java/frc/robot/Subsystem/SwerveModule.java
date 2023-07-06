@@ -1,5 +1,7 @@
 package frc.robot.Subsystem;
 
+import java.util.function.IntSupplier;
+
 import SOTAlib.MotorController.SOTA_MotorController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -25,12 +27,14 @@ public class SwerveModule extends SubsystemBase {
   private double[] gearRatio;
   private double[] maxSpeeds;
   private int currentGear; //0 low, 1 high
+  private IntSupplier gearSupplier;
   private double kSpeedCountsPerRevolution;
   private double kMaxAngluarVelcity;
 
   public SwerveModule(SOTA_MotorController speedMotor,
       SOTA_MotorController rotationMotor,
-      SwerveModuleConfig config) {
+      SwerveModuleConfig config,
+      IntSupplier gearSupplier) {
 
     this.kRotationCountsPerRevolution = config.getAngleCountsPerRevolution();
     this.kSpeedCountsPerRevolution = config.getSpeedCountsPerRevolution();
@@ -38,6 +42,8 @@ public class SwerveModule extends SubsystemBase {
     this.gearRatio[0] = config.getLowGearRatio();
     this.gearRatio[1] = config.getHighGearRatio();
     this.currentGear = 0;
+    this.gearSupplier = gearSupplier;
+    updateGear();
 
     this.speedMotor = speedMotor;
     this.speedPID = new ProfiledPIDController(config.getSpeedP(), config.getSpeedI(), config.getSpeedD(),
@@ -89,9 +95,9 @@ public class SwerveModule extends SubsystemBase {
     return kWheelCircumference / gearRatio[currentGear] / kSpeedCountsPerRevolution;
   }
 
-  public void setCurrentGear(int gear) {
-    this.currentGear = gear;
-  }
+  // public void setCurrentGear(int gear) {
+  //   this.currentGear = gear;
+  // }
 
   public double getCurrentMaxSpeed() {
     return maxSpeeds[currentGear];
@@ -99,5 +105,9 @@ public class SwerveModule extends SubsystemBase {
 
   public double getMaxAngularVelocity() {
     return kMaxAngluarVelcity;
+  }
+
+  public void updateGear() {
+    this.currentGear = gearSupplier.getAsInt();
   }
 }
