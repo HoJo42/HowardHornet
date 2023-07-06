@@ -2,12 +2,10 @@ package frc.robot.Subsystem.Configs;
 
 public class SwerveModuleConfig {
     private double angleCountsPerRevolution;
-
-    private double speedP;
-    private double speedI;
-    private double speedD;
-    private double speedMaxVelocity;
-    private double speedMaxAcceleration;
+    private double speedCountsPerRevolution;
+    private double wheelCircumference;
+    private double lowGearRatio;
+    private double highGearRatio;
 
     private double angleP;
     private double angleI;
@@ -17,6 +15,66 @@ public class SwerveModuleConfig {
 
     private double angleS;
     private double angleV;
+
+    private double speedP;
+    private double speedI;
+    private double speedD;
+    private double speedMaxVelocity;
+    private double speedMaxAcceleration;
+
+    private double speedS;
+    private double speedV;
+
+    public double getSpeedCountsPerRevolution() {
+        return this.speedCountsPerRevolution;
+    }
+
+    public void setSpeedCountsPerRevolution(double speedCountsPerRevolution) {
+        this.speedCountsPerRevolution = speedCountsPerRevolution;
+    }
+
+    public double getWheelCircumference() {
+        return this.wheelCircumference;
+    }
+
+    public void setWheelCircumference(double wheelCircumference) {
+        this.wheelCircumference = wheelCircumference;
+    }
+
+    public double getLowGearRatio() {
+        return this.lowGearRatio;
+    }
+
+    public void setLowGearRatio(double lowGearRatio) {
+        this.lowGearRatio = lowGearRatio;
+    }
+
+    public double getHighGearRatio() {
+        return this.highGearRatio;
+    }
+
+    public void setHighGearRatio(double highGearRatio) {
+        this.highGearRatio = highGearRatio;
+    }
+
+    
+    public double getSpeedS() {
+        return this.speedS;
+    }
+
+    public void setSpeedS(double speedS) {
+        this.speedS = speedS;
+    }
+
+    public double getSpeedV() {
+        return this.speedV;
+    }
+
+    public void setSpeedV(double speedV) {
+        this.speedV = speedV;
+    }
+
+    
 
     public double getAngleS() {
         return this.angleS;
@@ -117,5 +175,5 @@ public class SwerveModuleConfig {
     public double getAngleCountsPerRevolution() {
         return angleCountsPerRevolution;
     }
-    
+
 }
