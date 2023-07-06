@@ -4,6 +4,7 @@ import SOTAlib.MotorController.SOTA_MotorController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -22,8 +23,10 @@ public class SwerveModule extends SubsystemBase {
   private final double kRotationCountsPerRevolution;
   private double kWheelCircumference;
   private double[] gearRatio;
+  private double[] maxSpeeds;
   private int currentGear; //0 low, 1 high
   private double kSpeedCountsPerRevolution;
+  private double kMaxAngluarVelcity;
 
   public SwerveModule(SOTA_MotorController speedMotor,
       SOTA_MotorController rotationMotor,
@@ -90,4 +93,11 @@ public class SwerveModule extends SubsystemBase {
     this.currentGear = gear;
   }
 
+  public double getCurrentMaxSpeed() {
+    return maxSpeeds[currentGear];
+  }
+
+  public double getMaxAngularVelocity() {
+    return kMaxAngluarVelcity;
+  }
 }
