@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMax;
 import SOTAlib.MotorController.SOTA_MotorController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
@@ -20,8 +21,9 @@ public class SwerveModule extends SubsystemBase {
   private SOTA_MotorController speedMotor;
   private ProfiledPIDController speedPID;
 
-  private SOTA_MotorController rotationMotor;
-  private ProfiledPIDController rotationPID;
+  private SOTA_MotorController angleMotor;
+  private ProfiledPIDController anglePID;
+  private SimpleMotorFeedforward angleFF;
 
   private final double kRotationCountsPerRevolution;
 
@@ -33,9 +35,10 @@ public class SwerveModule extends SubsystemBase {
     this.speedPID = new ProfiledPIDController(config.getSpeedP(), config.getSpeedI(), config.getSpeedD(),
         new Constraints(config.getSpeedMaxVelocity(), config.getSpeedMaxAcceleration()));
 
-    this.rotationMotor = rotationMotor;
-    this.rotationPID = new ProfiledPIDController(config.getAngleP(), config.getAngleI(), config.getAngleD(),
+    this.angleMotor = rotationMotor;
+    this.anglePID = new ProfiledPIDController(config.getAngleP(), config.getAngleI(), config.getAngleD(),
         new Constraints(config.getAngleMaxVelocity(), config.getAngleMaxAcceleration()));
+    this.angleFF = new SimpleMotorFeedforward(config.getAngleS(), config.getAngleV());
 
     this.kRotationCountsPerRevolution = config.getAngleCountsPerRevolution();
   }
@@ -44,9 +47,12 @@ public class SwerveModule extends SubsystemBase {
     state = SwerveModuleState.optimize(state, getRotation2d());
 
     double angleCounts = radsToNative(state.angle.getRadians());
-    double anglePIDOutput = rotationPID.calculate(rotationMotor.getEncoderPosition(), angleCounts);
+    double anglePIDOutput = anglePID.calculate(angleMotor.getEncoderPosition(), angleCounts);
+    double angleFFOutput = angleFF.calculate(anglePID.getSetpoint().velocity);
 
-    rotationMotor.setVoltage(state.speedMetersPerSecond == 0 ? 0 : anglePIDOutput);
+    
+
+    angleMotor.setVoltage(state.speedMetersPerSecond == 0 ? 0 : anglePIDOutput + angleFFOutput);
   }
 
   private Rotation2d getRotation2d() {
@@ -54,11 +60,11 @@ public class SwerveModule extends SubsystemBase {
   }
 
   private double getRadians() {
-    return (kRotationCountsPerRevolution * rotationMotor.getEncoderPosition()) / 2 * Math.PI;
+    return ( 2 * Math.PI / kRotationCountsPerRevolution) * angleMotor.getEncoderPosition();
   }
 
   private double radsToNative(double rads) {
-    return (2 * Math.PI * rads) / kRotationCountsPerRevolution;
+    return (kRotationCountsPerRevolution / (2 * Math.PI)) * rads;
   }
 
 }

@@ -15,6 +15,25 @@ public class SwerveModuleConfig {
     private double angleMaxVelocity;
     private double angleMaxAcceleration;
 
+    private double angleS;
+    private double angleV;
+
+    public double getAngleS() {
+        return this.angleS;
+    }
+
+    public void setAngleS(double angleS) {
+        this.angleS = angleS;
+    }
+
+    public double getAngleV() {
+        return this.angleV;
+    }
+
+    public void setAngleV(double angleV) {
+        this.angleV = angleV;
+    }
+
     public double getAngleP() {
         return this.angleP;
     }
