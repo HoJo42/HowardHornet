@@ -86,7 +86,7 @@ public class SwerveModule extends SubsystemBase {
     return kWheelCircumference / gearRatio[currentGear] / kSpeedCountsPerRevolution;
   }
 
-  private void setCurrentGear(int gear) {
+  public void setCurrentGear(int gear) {
     this.currentGear = gear;
   }
 
