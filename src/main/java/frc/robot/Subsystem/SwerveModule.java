@@ -23,7 +23,7 @@ public class SwerveModule extends SubsystemBase {
   private SimpleMotorFeedforward angleFF;
 
   private double kWheelCircumference;
-  private double[] gearRatio;
+  private double[] gearRatio = {0, 0};
   private double[] maxSpeeds;
   private int currentGear; //0 low, 1 high
   private IntSupplier gearSupplier;
