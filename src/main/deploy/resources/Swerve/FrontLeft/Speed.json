@@ -1,0 +1,9 @@
+{
+    "motorModel": "Falcon",
+    "port": 1,
+    "isInverted": false,
+    "motorType": "BRUSHLESS",
+    "neutralOperation": "BRAKE",
+    "countsPerRevolution": 2048,
+    "currentLimit": 37
+}

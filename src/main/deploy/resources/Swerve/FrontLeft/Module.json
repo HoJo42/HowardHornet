@@ -1,0 +1,25 @@
+{
+    "wheelDiameter": 4.0,
+    "lowGearRatio": 10.40,
+    "highGearRatio": 5.07,
+    "lowGearMaxSpeed": 0.0,
+    "highGearMaxSpeed": 0.0,
+    
+    "angleP": 0.0,
+    "angleI": 0.0,
+    "angleD": 0.0,
+    "angleS": 0.0,
+    "angleV": 0.0,
+    "angleCountsPerRevolution": 0.0,
+    "angleMaxVelocity": 6.28,
+    "angleMaxAcceleration": 70.0,
+
+    "speedP": 0.0,
+    "speedI": 0.0,
+    "speedD": 0.0,
+    "speedS": 0.0,
+    "speedV": 0.0,
+    "speedCountsPerRevolution": 0.0,
+    "speedMaxVelocity": 7,
+    "speedMaxAcceleration": 70.0
+}
