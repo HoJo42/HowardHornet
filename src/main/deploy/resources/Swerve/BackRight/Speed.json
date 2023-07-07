@@ -1,9 +1,8 @@
 {
-    "motorModel":"SparkMax",
-    "port": 9,
+    "motorModel": "Falcon",
+    "port": 7,
     "isInverted": false,
     "neutralOperation": "BRAKE",
     "motorType": "BRUSHLESS",
-    "currentLimit": 40 
-
+    "currentLimit": 37
 }
