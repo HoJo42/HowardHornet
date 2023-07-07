@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.Commands.IntakeCommand;
 import frc.robot.Subsystem.Delivery;
 import frc.robot.Subsystem.Intake;
@@ -139,6 +140,8 @@ public class RobotContainer {
 
   private void configureBindings() {
     mController.a().whileTrue(new IntakeCommand(mIntake, mDelivery));
+    mController.b().whileTrue(new RunCommand(() -> mDelivery.intake(), mDelivery));
+    mController.y().whileTrue(new RunCommand(() -> mDelivery.outTake(), mDelivery));
   }
 
   public Command getAutonomousCommand() {
