@@ -142,6 +142,9 @@ public class RobotContainer {
     mController.a().whileTrue(new IntakeCommand(mIntake, mDelivery));
     mController.b().whileTrue(new RunCommand(() -> mDelivery.intake(), mDelivery));
     mController.y().whileTrue(new RunCommand(() -> mDelivery.outTake(), mDelivery));
+
+    mController.leftTrigger().onTrue(new RunCommand(() -> mShooter.hoodDown(), mShooter));
+    mController.rightTrigger().onTrue(new RunCommand(() -> mShooter.hoodUp(), mShooter));
   }
 
   public Command getAutonomousCommand() {
