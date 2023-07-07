@@ -1,8 +1,8 @@
 package frc.robot.Subsystem.Configs;
 
 public class SwerveModuleConfig {
-    private double angleCountsPerRevolution;
-    private double speedCountsPerRevolution;
+    // private double angleCountsPerRevolution;
+    // private double speedCountsPerRevolution;
     private double wheelDiameter;
     private double lowGearRatio;
     private double highGearRatio;
@@ -35,9 +35,9 @@ public class SwerveModuleConfig {
         return this.highGearMaxSpeed;
     }
 
-    public double getSpeedCountsPerRevolution() {
-        return this.speedCountsPerRevolution;
-    }
+    // public double getSpeedCountsPerRevolution() {
+    //     return this.speedCountsPerRevolution;
+    // }
 
     public double getWheelDiameter() {
         return this.wheelDiameter;
@@ -111,8 +111,8 @@ public class SwerveModuleConfig {
         return this.speedMaxAcceleration;
     }
 
-    public double getAngleCountsPerRevolution() {
-        return angleCountsPerRevolution;
-    }
+    // public double getAngleCountsPerRevolution() {
+    //     return angleCountsPerRevolution;
+    // }
 
 }
