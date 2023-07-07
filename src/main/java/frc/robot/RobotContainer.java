@@ -39,52 +39,57 @@ public class RobotContainer {
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     this.mConfigUtils = new ConfigUtils(mapper);
 
-    //Intake Intiialization
+    // Intake Intiialization
     try {
       IntakeConfig intakeConfig = mConfigUtils.readFromClassPath(IntakeConfig.class, "Intake");
 
-      MotorControllerConfig intakeMotorConfig = mConfigUtils.readFromClassPath(MotorControllerConfig.class, "IntakeMotor");
+      MotorControllerConfig intakeMotorConfig = mConfigUtils.readFromClassPath(MotorControllerConfig.class,
+          "IntakeMotor");
       SOTA_MotorController intakeMotor = MotorControllerFactory.generateMotorController(intakeMotorConfig);
+
       DoubleSolenoid intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, 1, 0);
-      
       this.mIntake = new Intake(intakeMotor, intakeSolenoid, intakeConfig);
     } catch (Exception e) {
       throw new RuntimeException("Failed to create Intake.", e);
     }
 
-    //Delivery Initialization
+    // Delivery Initialization
     try {
       DeliveryConfig deliveryConfig = mConfigUtils.readFromClassPath(DeliveryConfig.class, "Delivery");
 
-      MotorControllerConfig deliveryMotorConfig = mConfigUtils.readFromClassPath(MotorControllerConfig.class, "DeliveryMotor");
+      MotorControllerConfig deliveryMotorConfig = mConfigUtils.readFromClassPath(MotorControllerConfig.class,
+          "DeliveryMotor");
       SOTA_MotorController deliveryMotor = MotorControllerFactory.generateMotorController(deliveryMotorConfig);
       this.mDelivery = new Delivery(deliveryMotor, new DigitalInput(7), new DigitalInput(0), deliveryConfig);
-      
+
     } catch (Exception e) {
       throw new RuntimeException("Failed to create delivery", e);
     }
 
-    //Shooter Initialization
+    // Shooter Initialization
     try {
       ShooterConfig shooterConfig = mConfigUtils.readFromClassPath(ShooterConfig.class, "Shooter/Config");
 
-      MotorControllerConfig motor1Config = mConfigUtils.readFromClassPath(MotorControllerConfig.class, "Shooter/Motor1");
+      MotorControllerConfig motor1Config = mConfigUtils.readFromClassPath(MotorControllerConfig.class,
+          "Shooter/Motor1");
       SOTA_MotorController motor1 = MotorControllerFactory.generateMotorController(motor1Config);
 
-      MotorControllerConfig motor2Config = mConfigUtils.readFromClassPath(MotorControllerConfig.class, "Shooter/Motor2");
+      MotorControllerConfig motor2Config = mConfigUtils.readFromClassPath(MotorControllerConfig.class,
+          "Shooter/Motor2");
       SOTA_MotorController motor2 = MotorControllerFactory.generateMotorController(motor2Config);
-      
-      DoubleSolenoid solenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, 4, 5); //TODO: SOTA_Solenoid?
+
+      DoubleSolenoid solenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, 4, 5); // TODO: SOTA_Solenoid?
 
       mShooter = new Shooter(motor1, motor2, solenoid, shooterConfig);
     } catch (Exception e) {
       throw new RuntimeException("Failed to create Shooter", e);
     }
-    
+
     configureBindings();
   }
 
-  private void configureBindings() {}
+  private void configureBindings() {
+  }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
