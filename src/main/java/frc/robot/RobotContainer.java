@@ -15,10 +15,13 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import frc.robot.Commands.IntakeCommand;
 import frc.robot.Subsystem.Delivery;
 import frc.robot.Subsystem.Intake;
 import frc.robot.Subsystem.Shooter;
@@ -32,6 +35,7 @@ import frc.robot.Subsystem.Configs.SwerveModuleConfig;
 import SOTAlib.Config.ConfigUtils;
 import SOTAlib.Config.DoubleSolenoidConfig;
 import SOTAlib.Config.MotorControllerConfig;
+import SOTAlib.Control.SOTA_Xboxcontroller;
 import SOTAlib.Factories.IllegalMotorModel;
 import SOTAlib.Factories.MotorControllerFactory;
 import SOTAlib.Gyro.NavX;
@@ -49,10 +53,14 @@ public class RobotContainer {
   private Shooter mShooter;
   private SwerveDrive mSwerveDrive;
 
+  private SOTA_Xboxcontroller mController;
+
   public RobotContainer() {
     ObjectMapper mapper = new ObjectMapper();
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     this.mConfigUtils = new ConfigUtils(mapper);
+
+    this.mController = new SOTA_Xboxcontroller(1);
 
     // Intake Intiialization
     try {
@@ -100,6 +108,7 @@ public class RobotContainer {
       throw new RuntimeException("Failed to create Shooter", e);
     }
 
+    //Swerve Initialization
     try {
       SOTA_Gyro swerveGyro = new NavX(new AHRS(Port.kMXP));
 
@@ -129,6 +138,7 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
+    mController.a().whileTrue(new IntakeCommand(mIntake, mDelivery));
   }
 
   public Command getAutonomousCommand() {
