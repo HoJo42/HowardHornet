@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.Commands.IntakeCommand;
+import frc.robot.Commands.ShootCommand;
 import frc.robot.Subsystem.Delivery;
 import frc.robot.Subsystem.Intake;
 import frc.robot.Subsystem.Shooter;
@@ -142,7 +143,7 @@ public class RobotContainer {
     mController.a().whileTrue(new IntakeCommand(mIntake, mDelivery));
     mController.b().whileTrue(new RunCommand(() -> mDelivery.intake(), mDelivery));
     mController.y().whileTrue(new RunCommand(() -> mDelivery.outTake(), mDelivery));
-
+    mController.x().whileTrue(new ShootCommand(mShooter, mDelivery));
     mController.leftTrigger().onTrue(new RunCommand(() -> mShooter.hoodDown(), mShooter));
     mController.rightTrigger().onTrue(new RunCommand(() -> mShooter.hoodUp(), mShooter));
   }
