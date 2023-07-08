@@ -30,6 +30,7 @@ public class Shooter extends SubsystemBase {
 
   private ShuffleboardTab tab;
   private GenericEntry shooterRPM;
+  private GenericEntry liveShooterRPM;
   private double defaultRPM;
 
   /** Creates a new Shooter. */
@@ -45,6 +46,7 @@ public class Shooter extends SubsystemBase {
     this.defaultRPM = config.getDefaultRPM();
     this.tab = Shuffleboard.getTab("Shooter");
     this.shooterRPM = tab.addPersistent("ShooterRPM", defaultRPM).getEntry();
+    this.liveShooterRPM = tab.add("Live Shooter RPM:", 0).getEntry();
 
     this.speedSample = new ArrayList<>();
     speedSample.add(0.0);
@@ -67,7 +69,7 @@ public class Shooter extends SubsystemBase {
     }
     averageSpeed /= speedSample.size();
 
-    tab.add("live shooter RPM", averageSpeed);
+    liveShooterRPM.setDouble(averageSpeed);
 
     return Math.abs(averageSpeed - speedPID.getSetpoint()) < 100;
   }

@@ -16,7 +16,7 @@ public class Delivery extends SubsystemBase {
   private DigitalInput topSensor;
   private DigitalInput bottomSensor;
 
-  private double INTAKE_SPEED; //TODO: add config
+  private double INTAKE_SPEED; 
   private double OUTTAKE_SPEED;
   private double SHOOT_SPEED;
 
@@ -43,6 +43,10 @@ public class Delivery extends SubsystemBase {
    */
   public void outTake(){
     motor.set(OUTTAKE_SPEED);
+  }
+
+  public void stop(){
+    motor.set(0);
   }
 
   /**

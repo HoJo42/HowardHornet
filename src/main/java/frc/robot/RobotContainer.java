@@ -15,10 +15,17 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.Commands.DriveCommand;
+import frc.robot.Commands.IntakeCommand;
+import frc.robot.Commands.ShootCommand;
 import frc.robot.Subsystem.Delivery;
 import frc.robot.Subsystem.Intake;
 import frc.robot.Subsystem.Shooter;
@@ -32,6 +39,7 @@ import frc.robot.Subsystem.Configs.SwerveModuleConfig;
 import SOTAlib.Config.ConfigUtils;
 import SOTAlib.Config.DoubleSolenoidConfig;
 import SOTAlib.Config.MotorControllerConfig;
+import SOTAlib.Control.SOTA_Xboxcontroller;
 import SOTAlib.Factories.IllegalMotorModel;
 import SOTAlib.Factories.MotorControllerFactory;
 import SOTAlib.Gyro.NavX;
@@ -49,10 +57,16 @@ public class RobotContainer {
   private Shooter mShooter;
   private SwerveDrive mSwerveDrive;
 
+  private SOTA_Xboxcontroller mController;
+  private SOTA_Xboxcontroller dController;
+
   public RobotContainer() {
     ObjectMapper mapper = new ObjectMapper();
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     this.mConfigUtils = new ConfigUtils(mapper);
+
+    this.mController = new SOTA_Xboxcontroller(1);
+    this.dController = new SOTA_Xboxcontroller(0);
 
     // Intake Intiialization
     try {
@@ -100,6 +114,7 @@ public class RobotContainer {
       throw new RuntimeException("Failed to create Shooter", e);
     }
 
+    //Swerve Initialization
     try {
       SOTA_Gyro swerveGyro = new NavX(new AHRS(Port.kMXP));
 
@@ -126,9 +141,24 @@ public class RobotContainer {
     }
 
     configureBindings();
+    configureDefaultCommands();
+  }
+
+  private void configureDefaultCommands() {
+    mSwerveDrive.setDefaultCommand(new DriveCommand(dController::getLeftY, dController::getLeftX, dController::getRightX, mSwerveDrive));
   }
 
   private void configureBindings() {
+    mController.a().whileTrue(new IntakeCommand(mIntake, mDelivery));
+    mController.b().whileTrue(new RunCommand(() -> mDelivery.intake(), mDelivery));
+    mController.y().whileTrue(new RunCommand(() -> mDelivery.outTake(), mDelivery));
+    mController.x().whileTrue(new ShootCommand(mShooter, mDelivery));
+    mController.leftTrigger().onTrue(new RunCommand(() -> mShooter.hoodDown(), mShooter));
+    mController.rightTrigger().onTrue(new RunCommand(() -> mShooter.hoodUp(), mShooter));
+
+    dController.start().onTrue(new InstantCommand(() -> mSwerveDrive.resetGyro(), mSwerveDrive));
+    dController.leftTrigger().onTrue(new RunCommand(() -> mSwerveDrive.shiftDown(), mSwerveDrive));
+    dController.rightTrigger().onTrue(new RunCommand(() -> mSwerveDrive.shiftUp(), mSwerveDrive));
   }
 
   public Command getAutonomousCommand() {

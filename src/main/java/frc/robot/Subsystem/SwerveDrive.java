@@ -77,10 +77,22 @@ public class SwerveDrive extends SubsystemBase {
     return output;
   }
 
-  public void shift(int gear) {
+  private void shift(int gear) {
     shifter.shift(gear);
     for (SwerveModule loopModule : modules) {
       loopModule.updateGear();
     }
   }
+
+  public void shiftUp() {
+    shift(1);
+  }
+
+  public void shiftDown() {
+    shift(0);
+  }
+
+public void resetGyro() {
+    gyro.resetAngle();
+}
 }

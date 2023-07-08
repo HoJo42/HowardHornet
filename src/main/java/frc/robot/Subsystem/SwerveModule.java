@@ -24,7 +24,7 @@ public class SwerveModule extends SubsystemBase {
 
   private double kWheelCircumference;
   private double[] gearRatio = {0, 0};
-  private double[] maxSpeeds;
+  private double[] maxSpeeds = {0, 0};
   private int currentGear; //0 low, 1 high
   private IntSupplier gearSupplier;
   private double kMaxAngluarVelcity;
@@ -37,6 +37,8 @@ public class SwerveModule extends SubsystemBase {
     this.kWheelCircumference = config.getWheelCircumference();
     this.gearRatio[0] = config.getLowGearRatio();
     this.gearRatio[1] = config.getHighGearRatio();
+    this.maxSpeeds[0] = config.getLowGearMaxSpeed();
+    this.maxSpeeds[1] = config.getHighGearMaxSpeed();
     this.currentGear = 0;
     this.gearSupplier = gearSupplier;
     updateGear();
