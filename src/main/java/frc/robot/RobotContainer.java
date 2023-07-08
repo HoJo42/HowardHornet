@@ -20,8 +20,10 @@ import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.Commands.DriveCommand;
 import frc.robot.Commands.IntakeCommand;
 import frc.robot.Commands.ShootCommand;
 import frc.robot.Subsystem.Delivery;
@@ -56,6 +58,7 @@ public class RobotContainer {
   private SwerveDrive mSwerveDrive;
 
   private SOTA_Xboxcontroller mController;
+  private SOTA_Xboxcontroller dController;
 
   public RobotContainer() {
     ObjectMapper mapper = new ObjectMapper();
@@ -63,6 +66,7 @@ public class RobotContainer {
     this.mConfigUtils = new ConfigUtils(mapper);
 
     this.mController = new SOTA_Xboxcontroller(1);
+    this.dController = new SOTA_Xboxcontroller(0);
 
     // Intake Intiialization
     try {
@@ -137,6 +141,11 @@ public class RobotContainer {
     }
 
     configureBindings();
+    configureDefaultCommands();
+  }
+
+  private void configureDefaultCommands() {
+    mSwerveDrive.setDefaultCommand(new DriveCommand(dController::getLeftY, dController::getLeftX, dController::getRightX, mSwerveDrive));
   }
 
   private void configureBindings() {
@@ -146,6 +155,10 @@ public class RobotContainer {
     mController.x().whileTrue(new ShootCommand(mShooter, mDelivery));
     mController.leftTrigger().onTrue(new RunCommand(() -> mShooter.hoodDown(), mShooter));
     mController.rightTrigger().onTrue(new RunCommand(() -> mShooter.hoodUp(), mShooter));
+
+    dController.start().onTrue(new InstantCommand(() -> mSwerveDrive.resetGyro(), mSwerveDrive));
+    dController.leftTrigger().onTrue(new RunCommand(() -> mSwerveDrive.shiftDown(), mSwerveDrive));
+    dController.rightTrigger().onTrue(new RunCommand(() -> mSwerveDrive.shiftUp(), mSwerveDrive));
   }
 
   public Command getAutonomousCommand() {
