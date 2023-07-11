@@ -2,8 +2,8 @@
     "wheelDiameter": 4.0,
     "lowGearRatio": 10.40,
     "highGearRatio": 5.07,
-    "lowGearMaxSpeed": 0.0,
-    "highGearMaxSpeed": 0.0,
+    "lowGearMaxSpeed": 2.7432,
+    "highGearMaxSpeed": 5.1816,
     
     "angleP": 0.0,
     "angleI": 0.0,
