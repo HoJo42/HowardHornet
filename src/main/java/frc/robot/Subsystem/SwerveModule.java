@@ -2,11 +2,11 @@ package frc.robot.Subsystem;
 
 import java.util.function.IntSupplier;
 
+import SOTAlib.Encoder.Absolute.SOTA_AbsoulteEncoder;
 import SOTAlib.MotorController.SOTA_MotorController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -19,19 +19,23 @@ public class SwerveModule extends SubsystemBase {
   private SimpleMotorFeedforward speedFF;
 
   private SOTA_MotorController angleMotor;
+  private SOTA_AbsoulteEncoder angleEncoder;
   private ProfiledPIDController anglePID;
   private SimpleMotorFeedforward angleFF;
 
   private double kWheelCircumference;
-  private double[] gearRatio = {0, 0};
-  private double[] maxSpeeds = {0, 0};
-  private int currentGear; //0 low, 1 high
+  private double[] gearRatio = { 0, 0 };
+  private double[] maxSpeeds = { 0, 0 };
+  private int currentGear; // 0 low, 1 high
   private IntSupplier gearSupplier;
   private double kMaxAngluarVelcity;
+  private final double kRotationsToRadians = 6.283185;
+  private final double kRadiansToRotations = 0.159155;
 
   public SwerveModule(SOTA_MotorController speedMotor,
       SOTA_MotorController rotationMotor,
       SwerveModuleConfig config,
+      SOTA_AbsoulteEncoder encoder,
       IntSupplier gearSupplier) {
 
     this.kWheelCircumference = config.getWheelCircumference();
@@ -52,7 +56,9 @@ public class SwerveModule extends SubsystemBase {
     this.angleMotor = rotationMotor;
     this.anglePID = new ProfiledPIDController(config.getAngleP(), config.getAngleI(), config.getAngleD(),
         new Constraints(config.getAngleMaxVelocity(), config.getAngleMaxAcceleration()));
-    anglePID.enableContinuousInput(0, angleMotor.getEncoder().getCountsPerRevolution());
+    anglePID.enableContinuousInput(0, 1);
+
+    this.angleEncoder = encoder;
 
     this.angleFF = new SimpleMotorFeedforward(config.getAngleS(), config.getAngleV());
 
@@ -61,13 +67,13 @@ public class SwerveModule extends SubsystemBase {
   public void setModule(SwerveModuleState state) {
     state = SwerveModuleState.optimize(state, getRotation2d());
 
-    double angleCounts = radsToNative(state.angle.getRadians());
-    double anglePIDOutput = anglePID.calculate(angleMotor.getEncoderPosition(), angleCounts);
+    double angleRotations = radsToRotations(state.angle.getRadians());
+    double anglePIDOutput = anglePID.calculate(angleMotor.getEncoderPosition(), angleRotations);
     double angleFFOutput = angleFF.calculate(anglePID.getSetpoint().velocity);
 
-    double speedCounts = metersPerSecondToNative(state.speedMetersPerSecond);
-    double speedPIDOutput = speedPID.calculate(speedMotor.getEncoderVelocity(), speedCounts);
-    double speedFFOutput = speedFF.calculate(speedCounts);
+    double speedRPM = metersPerSecondToRPM(state.speedMetersPerSecond);
+    double speedPIDOutput = speedPID.calculate(speedMotor.getEncoderVelocity(), speedRPM);
+    double speedFFOutput = speedFF.calculate(speedRPM);
 
     angleMotor.setVoltage(state.speedMetersPerSecond == 0 ? 0 : anglePIDOutput + angleFFOutput);
     speedMotor.setVoltage(speedPIDOutput + speedFFOutput);
@@ -78,24 +84,16 @@ public class SwerveModule extends SubsystemBase {
   }
 
   private double getRadians() {
-    return (2 * Math.PI / angleMotor.getEncoder().getCountsPerRevolution()) * angleMotor.getEncoderPosition();
+    return angleEncoder.getPosition() * kRotationsToRadians;
   }
 
-  private double radsToNative(double rads) {
-    return (angleMotor.getEncoder().getCountsPerRevolution() / (2 * Math.PI)) * rads;
+  private double radsToRotations(double rads) {
+    return rads * kRadiansToRotations;
   }
 
-  private double metersPerSecondToNative(double MPS) {
-    return MPS / getMetersPerCount() / 10;
+  private double metersPerSecondToRPM(double MPS) {
+    return (60 / ((2 * Math.PI) * (kWheelCircumference / 2))) * MPS;
   }
-
-  public double getMetersPerCount() {
-    return kWheelCircumference / gearRatio[currentGear] / speedMotor.getNativeCountsPerRevolution();
-  }
-
-  // public void setCurrentGear(int gear) {
-  //   this.currentGear = gear;
-  // }
 
   public double getCurrentMaxSpeed() {
     return maxSpeeds[currentGear];

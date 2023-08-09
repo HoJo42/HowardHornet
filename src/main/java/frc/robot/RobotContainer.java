@@ -7,7 +7,6 @@ package frc.robot;
 import java.io.IOException;
 import java.util.function.IntSupplier;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kauailabs.navx.frc.AHRS;
@@ -15,13 +14,10 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.I2C.Port;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.Commands.DriveCommand;
 import frc.robot.Commands.IntakeCommand;
@@ -38,14 +34,17 @@ import frc.robot.Subsystem.Configs.SwerveDriveConfig;
 import frc.robot.Subsystem.Configs.SwerveModuleConfig;
 import SOTAlib.Config.ConfigUtils;
 import SOTAlib.Config.DoubleSolenoidConfig;
+import SOTAlib.Config.EncoderConfig;
 import SOTAlib.Config.MotorControllerConfig;
 import SOTAlib.Control.SOTA_Xboxcontroller;
+import SOTAlib.Encoder.Absolute.SOTA_AbsoulteEncoder;
+import SOTAlib.Factories.EncoderFactory;
 import SOTAlib.Factories.IllegalMotorModel;
 import SOTAlib.Factories.MotorControllerFactory;
 import SOTAlib.Gyro.NavX;
 import SOTAlib.Gyro.SOTA_Gyro;
+import SOTAlib.MotorController.NullConfigException;
 import SOTAlib.MotorController.SOTA_MotorController;
-import SOTAlib.MotorController.SparkMaxDelegate;
 import SOTAlib.Pneumatics.DoubleSolenoidShifter;
 
 public class RobotContainer {
@@ -125,13 +124,13 @@ public class RobotContainer {
       SwerveDriveConfig swerveConfig = mConfigUtils.readFromClassPath(SwerveDriveConfig.class, "Swerve/Drive");
 
       SwerveModule[] swerveModules = {
-          initModule("Swerve/FrontLeft/Speed", "Swerve/FrontLeft/Angle", "Swerve/FrontLeft/Module",
+          initModule("Swerve/FrontLeft/Speed", "Swerve/FrontLeft/Angle", "Swerve/FrontLeft/Module", "Swerve/FrontLeft/Encoder",
               swerveShifter::getGear),
-          initModule("Swerve/FrontRight/Speed", "Swerve/FrontRight/Angle", "Swerve/FrontRight/Module",
+          initModule("Swerve/FrontRight/Speed", "Swerve/FrontRight/Angle", "Swerve/FrontRight/Module", "Swerve/FrontRight/Encoder",
               swerveShifter::getGear),
-          initModule("Swerve/BackLeft/Speed", "Swerve/BackLeft/Angle", "Swerve/BackLeft/Module",
+          initModule("Swerve/BackLeft/Speed", "Swerve/BackLeft/Angle", "Swerve/BackLeft/Module", "Swerve/BackLeft/Encoder",
               swerveShifter::getGear),
-          initModule("Swerve/BackRight/Speed", "Swerve/BackRight/Angle", "Swerve/BackRight/Module",
+          initModule("Swerve/BackRight/Speed", "Swerve/BackRight/Angle", "Swerve/BackRight/Module", "Swerve/BackRight/Encoder",
               swerveShifter::getGear)
       };
 
@@ -165,7 +164,7 @@ public class RobotContainer {
     return Commands.print("No autonomous command configured");
   }
 
-  public SwerveModule initModule(String speedConfig, String angleConfig, String moduleConfig, IntSupplier gear) {
+  public SwerveModule initModule(String speedConfig, String angleConfig, String moduleConfig, String encoderConfig, IntSupplier gear) {
     try {
       MotorControllerConfig spdConfig = mConfigUtils.readFromClassPath(MotorControllerConfig.class, speedConfig);
       SOTA_MotorController speedMotor = MotorControllerFactory.generateMotorController(spdConfig);
@@ -177,10 +176,19 @@ public class RobotContainer {
 
       SwerveModuleConfig mdlConfig = mConfigUtils.readFromClassPath(SwerveModuleConfig.class, moduleConfig);
       System.out.println("modConfig Correct");
-      return new SwerveModule(speedMotor, angleMotor, mdlConfig, gear);
+      
+      EncoderConfig ncdrConfig = mConfigUtils.readFromClassPath(EncoderConfig.class, encoderConfig);
+      SOTA_AbsoulteEncoder encoder = EncoderFactory.generateAbsoluteEncoder(ncdrConfig);
+      System.out.println("ncdrConfig correct");
+
+      return new SwerveModule(speedMotor, angleMotor, mdlConfig, encoder, gear);
     } catch (IllegalMotorModel e) {
       throw new RuntimeException("Failed to create module", e);
     } catch (IOException e) {
+      throw new RuntimeException("Failed to create module", e);
+    } catch (NullConfigException e) {
+      throw new RuntimeException("Failed to create module", e);
+    } catch (Exception e) {
       throw new RuntimeException("Failed to create module", e);
     }
   }

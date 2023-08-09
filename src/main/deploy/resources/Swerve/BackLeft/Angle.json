@@ -3,11 +3,5 @@
     "port": 6,
     "neutralOperation": "BRAKE",
     "motorType": "BRUSHLESS",
-    "encoderConfig": {
-        "port": 1,
-        "encoderOffset": 4.561767111,
-        "countsPerRevolution": 5,
-        "encoderType": "ANALOG"
-    },
     "currentLimit": 40
 }
