@@ -1,7 +1,6 @@
 {
     "motorModel": "Falcon",
     "port": 5,
-    "isInverted": false, 
     "neutralOperation": "BRAKE", 
     "motorType": "BRUSHLESS", 
     "currentLimit": 37

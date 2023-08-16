@@ -1,6 +1,5 @@
 {
-    "port": 2,
-    "encoderOffset": 4.349364789,
-    "countsPerRevolution": 5,
+    "port": 1,
+    "encoderOffset": 0.0,
     "encoderType": "ANALOG"
 }
