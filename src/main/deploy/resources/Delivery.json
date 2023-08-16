@@ -1,5 +1,5 @@
 {
-    "intakeSpeed": 0.5,
-    "outTakeSpeed": 0.0,
+    "intakeSpeed": 0.3,
+    "outTakeSpeed": 0.3,
     "shootSpeed": 0.7
 }

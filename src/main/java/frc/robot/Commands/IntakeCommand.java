@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.Subsystem.Delivery;
 import frc.robot.Subsystem.Intake;
 
-public class IntakeCommand extends CommandBase {
+public class IntakeCommand extends ParallelCommandGroup {
 
   private Intake mIntake;
   private Delivery mDelivery;
@@ -20,35 +20,8 @@ public class IntakeCommand extends CommandBase {
   public IntakeCommand(Intake intake, Delivery delivery) {
     this.mIntake = intake;
     this.mDelivery = delivery;
-    addRequirements(mIntake, mDelivery);
-  }
-
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-  }
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-    // System.out.println("Intake Command Running!");
-    new ParallelCommandGroup(
-        new RunCommand(() -> mIntake.intake(), mIntake),
-        new RunCommand(() -> mDelivery.intake(), mDelivery));
-  }
-
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-    // System.out.println("Intake Command Stopped!");
-    new ParallelCommandGroup(
-        new RunCommand(() -> mIntake.stop(), mIntake),
-        new RunCommand(() -> mDelivery.stop(), mDelivery));
-  }
-
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return false;
+    addCommands(new RunCommand(() -> intake.intake(), mIntake), new RunCommand(() -> delivery.intake(), mDelivery));
+    
+    System.out.println("New Intake Command Created");
   }
 }

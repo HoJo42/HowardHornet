@@ -29,6 +29,7 @@ public class Shooter extends SubsystemBase {
   private ArrayList<Double> speedSample;
 
   private ShuffleboardTab tab;
+  private GenericEntry readyToShoot;
   private GenericEntry shooterRPM;
   private GenericEntry liveShooterRPM;
   private double defaultRPM;
@@ -47,6 +48,7 @@ public class Shooter extends SubsystemBase {
     this.tab = Shuffleboard.getTab("Shooter");
     this.shooterRPM = tab.addPersistent("ShooterRPM", defaultRPM).getEntry();
     this.liveShooterRPM = tab.add("Live Shooter RPM:", 0).getEntry();
+    this.readyToShoot = tab.add("Ready to Shoot", false).getEntry();
 
     this.speedSample = new ArrayList<>();
     speedSample.add(0.0);
@@ -71,7 +73,7 @@ public class Shooter extends SubsystemBase {
 
     liveShooterRPM.setDouble(averageSpeed);
 
-    return Math.abs(averageSpeed - speedPID.getSetpoint()) < 100;
+    return Math.abs(averageSpeed - speedPID.getSetpoint()) < 50;
   }
 
   /**
@@ -131,6 +133,7 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
+    readyToShoot.setBoolean(readyToShoot());
     updateSpeedSample();
   }
 }

@@ -113,7 +113,7 @@ public class RobotContainer {
       throw new RuntimeException("Failed to create Shooter", e);
     }
 
-    //Swerve Initialization
+    // Swerve Initialization
     try {
       SOTA_Gyro swerveGyro = new NavX(new AHRS(Port.kMXP));
 
@@ -124,13 +124,17 @@ public class RobotContainer {
       SwerveDriveConfig swerveConfig = mConfigUtils.readFromClassPath(SwerveDriveConfig.class, "Swerve/Drive");
 
       SwerveModule[] swerveModules = {
-          initModule("Swerve/FrontLeft/Speed", "Swerve/FrontLeft/Angle", "Swerve/FrontLeft/Module", "Swerve/FrontLeft/Encoder",
+          initModule("Swerve/FrontLeft/Speed", "Swerve/FrontLeft/Angle", "Swerve/FrontLeft/Module",
+              "Swerve/FrontLeft/Encoder",
               swerveShifter::getGear),
-          initModule("Swerve/FrontRight/Speed", "Swerve/FrontRight/Angle", "Swerve/FrontRight/Module", "Swerve/FrontRight/Encoder",
+          initModule("Swerve/FrontRight/Speed", "Swerve/FrontRight/Angle", "Swerve/FrontRight/Module",
+              "Swerve/FrontRight/Encoder",
               swerveShifter::getGear),
-          initModule("Swerve/BackLeft/Speed", "Swerve/BackLeft/Angle", "Swerve/BackLeft/Module", "Swerve/BackLeft/Encoder",
+          initModule("Swerve/BackLeft/Speed", "Swerve/BackLeft/Angle", "Swerve/BackLeft/Module",
+              "Swerve/BackLeft/Encoder",
               swerveShifter::getGear),
-          initModule("Swerve/BackRight/Speed", "Swerve/BackRight/Angle", "Swerve/BackRight/Module", "Swerve/BackRight/Encoder",
+          initModule("Swerve/BackRight/Speed", "Swerve/BackRight/Angle", "Swerve/BackRight/Module",
+              "Swerve/BackRight/Encoder",
               swerveShifter::getGear)
       };
 
@@ -144,11 +148,13 @@ public class RobotContainer {
   }
 
   private void configureDefaultCommands() {
-    mSwerveDrive.setDefaultCommand(new DriveCommand(dController::getLeftY, dController::getLeftX, dController::getRightX, mSwerveDrive));
+    mSwerveDrive.setDefaultCommand(
+        new DriveCommand(dController::getLeftY, dController::getLeftX, dController::getRightX, mSwerveDrive));
   }
 
   private void configureBindings() {
-    mController.a().whileTrue(new IntakeCommand(mIntake, mDelivery));
+    mController.a().whileTrue(new IntakeCommand(mIntake, mDelivery)).onFalse(Commands
+        .parallel(new RunCommand(() -> mIntake.stop(), mIntake), new RunCommand(() -> mDelivery.stop(), mDelivery)));
     mController.b().whileTrue(new RunCommand(() -> mDelivery.intake(), mDelivery));
     mController.y().whileTrue(new RunCommand(() -> mDelivery.outTake(), mDelivery));
     mController.x().whileTrue(new ShootCommand(mShooter, mDelivery));
@@ -164,7 +170,8 @@ public class RobotContainer {
     return Commands.print("No autonomous command configured");
   }
 
-  public SwerveModule initModule(String speedConfig, String angleConfig, String moduleConfig, String encoderConfig, IntSupplier gear) {
+  public SwerveModule initModule(String speedConfig, String angleConfig, String moduleConfig, String encoderConfig,
+      IntSupplier gear) {
     try {
       MotorControllerConfig spdConfig = mConfigUtils.readFromClassPath(MotorControllerConfig.class, speedConfig);
       SOTA_MotorController speedMotor = MotorControllerFactory.generateMotorController(spdConfig);
@@ -176,7 +183,7 @@ public class RobotContainer {
 
       SwerveModuleConfig mdlConfig = mConfigUtils.readFromClassPath(SwerveModuleConfig.class, moduleConfig);
       System.out.println("modConfig Correct");
-      
+
       EncoderConfig ncdrConfig = mConfigUtils.readFromClassPath(EncoderConfig.class, encoderConfig);
       SOTA_AbsoulteEncoder encoder = EncoderFactory.generateAbsoluteEncoder(ncdrConfig);
       System.out.println("ncdrConfig correct");
