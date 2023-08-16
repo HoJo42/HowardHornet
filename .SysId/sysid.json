@@ -1,0 +1,11 @@
+{
+  "SysId": {
+    "Analysis Type": "General Mechanism",
+    "NetworkTables Settings": {
+      "serverTeam": "2557"
+    },
+    "clientName": "Sysid",
+    "mode": "Client (NT3)",
+    "serverTeam": "2557"
+  }
+}
