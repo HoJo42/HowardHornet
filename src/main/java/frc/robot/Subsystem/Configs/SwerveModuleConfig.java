@@ -1,6 +1,7 @@
 package frc.robot.Subsystem.Configs;
 
 public class SwerveModuleConfig {
+    private String name;
     // private double angleCountsPerRevolution;
     // private double speedCountsPerRevolution;
     private double wheelDiameter;
@@ -26,6 +27,10 @@ public class SwerveModuleConfig {
 
     private double speedS;
     private double speedV;
+
+    public String getName() {
+        return this.name;
+    }
 
     public double getLowGearMaxSpeed() {
         return this.lowGearMaxSpeed;

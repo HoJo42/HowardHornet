@@ -9,10 +9,15 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Subsystem.Configs.SwerveModuleConfig;
 
 public class SwerveModule extends SubsystemBase {
+
+  private String moduleName;
 
   private SOTA_MotorController speedMotor;
   private ProfiledPIDController speedPID;
@@ -32,11 +37,17 @@ public class SwerveModule extends SubsystemBase {
   private final double kRotationsToRadians = 6.283185;
   private final double kRadiansToRotations = 0.159155;
 
+  private ShuffleboardTab sTab;
+  private GenericEntry encoderPosEntry;
+
   public SwerveModule(SOTA_MotorController speedMotor,
       SOTA_MotorController rotationMotor,
       SwerveModuleConfig config,
       SOTA_AbsoulteEncoder encoder,
       IntSupplier gearSupplier) {
+
+    this.sTab = Shuffleboard.getTab("Swerve");
+    this.moduleName = config.getName();
 
     this.kWheelCircumference = config.getWheelCircumference();
     this.gearRatio[0] = config.getLowGearRatio();
@@ -62,6 +73,7 @@ public class SwerveModule extends SubsystemBase {
 
     this.angleFF = new SimpleMotorFeedforward(config.getAngleS(), config.getAngleV());
 
+    this.encoderPosEntry = sTab.add("Encoder Output:" + moduleName, 0.0).getEntry();
   }
 
   public void setModule(SwerveModuleState state) {
@@ -105,5 +117,14 @@ public class SwerveModule extends SubsystemBase {
 
   public void updateGear() {
     this.currentGear = gearSupplier.getAsInt();
+  }
+
+  public void updateSB() {
+    encoderPosEntry.setDouble(angleEncoder.getPosition());
+  }
+
+  @Override
+  public void periodic() {
+      updateSB();
   }
 }
