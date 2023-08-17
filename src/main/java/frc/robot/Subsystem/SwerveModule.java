@@ -96,7 +96,7 @@ public class SwerveModule extends SubsystemBase {
   }
 
   private double getRadians() {
-    return angleEncoder.getPosition() * kRotationsToRadians;
+    return angleEncoder.getConstrainedPositon() * kRotationsToRadians;
   }
 
   private double radsToRotations(double rads) {
@@ -120,7 +120,7 @@ public class SwerveModule extends SubsystemBase {
   }
 
   public void updateSB() {
-    encoderPosEntry.setDouble(angleEncoder.getPosition());
+    encoderPosEntry.setDouble(angleEncoder.getConstrainedPositon());
   }
 
   @Override
