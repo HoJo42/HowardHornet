@@ -4,14 +4,17 @@ import java.util.function.IntSupplier;
 
 import SOTAlib.Encoder.Absolute.SOTA_AbsoulteEncoder;
 import SOTAlib.MotorController.SOTA_MotorController;
+import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Subsystem.Configs.SwerveModuleConfig;
 
@@ -39,6 +42,9 @@ public class SwerveModule extends SubsystemBase {
 
   private ShuffleboardTab sTab;
   private GenericEntry encoderPosEntry;
+
+  private SimDeviceSim simAngleEncoder;
+  private SimDouble simEncoderPosition;
 
   public SwerveModule(SOTA_MotorController speedMotor,
       SOTA_MotorController rotationMotor,
@@ -70,7 +76,11 @@ public class SwerveModule extends SubsystemBase {
     anglePID.enableContinuousInput(0, 1);
 
     this.angleEncoder = encoder;
-
+    if (RobotBase.isSimulation()) {
+      this.simAngleEncoder = new SimDeviceSim("AnalogEncoder", encoder.getPort());
+      this.simEncoderPosition = simAngleEncoder.getDouble("Position");
+      simEncoderPosition.set(-1.7);
+    }
     this.angleFF = new SimpleMotorFeedforward(config.getAngleS(), config.getAngleV());
 
     this.encoderPosEntry = sTab.add("Encoder Output:" + moduleName, 0.0).getEntry();
@@ -125,6 +135,11 @@ public class SwerveModule extends SubsystemBase {
 
   @Override
   public void periodic() {
-      updateSB();
+    updateSB();
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    updateSB();
   }
 }
