@@ -42,6 +42,7 @@ public class SwerveDrive extends SubsystemBase {
     frwrd = MathUtil.clamp(frwrd, -1, 1) * getLowestMaxSpeed();
     strf = MathUtil.clamp(strf, -1, 1) * getLowestMaxSpeed();
     rttn = MathUtil.clamp(rttn, -1, 1) * getLowestMaxAngularVelocity();
+    drive(new ChassisSpeeds(frwrd, strf, rttn));
   }
 
   /**
