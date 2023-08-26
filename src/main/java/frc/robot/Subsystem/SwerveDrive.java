@@ -4,14 +4,18 @@ import SOTAlib.Gyro.SOTA_Gyro;
 import SOTAlib.Pneumatics.DoubleSolenoidShifter;
 import SOTAlib.Pneumatics.GearShifter;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Subsystem.Configs.SwerveDriveConfig;
 
 public class SwerveDrive extends SubsystemBase {
   private SwerveDriveKinematics mKinematics;
+  private SwerveDriveOdometry mOdometry;
   private SwerveModule[] modules;
   private SOTA_Gyro gyro;
   private GearShifter shifter;
@@ -28,6 +32,9 @@ public class SwerveDrive extends SubsystemBase {
     }
     this.fieldCentric = true;
     this.mKinematics = config.generateKinematics();
+    this.mOdometry = new SwerveDriveOdometry(mKinematics, new Rotation2d(gyro.getAngle()), new SwerveModulePosition[] {
+      modules[0].getPosition(), modules[1].getPosition(), modules[2].getPosition(), modules[3].getPosition()
+    });
   }
 
   public void drive (double frwrd, double strf, double rttn) {
