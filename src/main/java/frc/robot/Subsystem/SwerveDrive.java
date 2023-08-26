@@ -62,6 +62,14 @@ public class SwerveDrive extends SubsystemBase {
     }
   }
 
+  public void autoDrive(SwerveModuleState[] states) {
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, getLowestMaxSpeed());
+
+    for (int i = 0; i < states.length; i++) {
+      modules[i].setModule(states[i]);
+    }
+  }
+
   public void toggleFieldCentric() {
     if (fieldCentric) {
       fieldCentric = false;
