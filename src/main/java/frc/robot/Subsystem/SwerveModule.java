@@ -8,6 +8,7 @@ import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.networktables.GenericEntry;
@@ -21,6 +22,8 @@ import frc.robot.Subsystem.Configs.SwerveModuleConfig;
 public class SwerveModule extends SubsystemBase {
 
   private String moduleName;
+  private Double measuredDistanceMeters;
+  private Double previousDistance;
 
   private SOTA_MotorController speedMotor;
   private ProfiledPIDController speedPID;
@@ -51,6 +54,9 @@ public class SwerveModule extends SubsystemBase {
       SwerveModuleConfig config,
       SOTA_AbsoulteEncoder encoder,
       IntSupplier gearSupplier) {
+
+    this.measuredDistanceMeters = 0.0;
+    this.previousDistance = 0.0;
 
     this.sTab = Shuffleboard.getTab("Swerve");
     this.moduleName = config.getName();
@@ -125,8 +131,21 @@ public class SwerveModule extends SubsystemBase {
     return kMaxAngluarVelcity;
   }
 
+  public Double getDistance() {
+    return measuredDistanceMeters;
+  }
+
+  public SwerveModulePosition getPosition() {
+    return new SwerveModulePosition(getDistance(), getRotation2d());
+  }
+
   public void updateGear() {
     this.currentGear = gearSupplier.getAsInt();
+  }
+
+  public void updateDistance() {
+    measuredDistanceMeters += (speedMotor.getEncoderPosition() - previousDistance) * (kWheelCircumference / gearRatio[currentGear]);
+    previousDistance = speedMotor.getEncoderPosition();
   }
 
   public void updateSB() {
@@ -135,6 +154,7 @@ public class SwerveModule extends SubsystemBase {
 
   @Override
   public void periodic() {
+    updateDistance();
     updateSB();
   }
 
