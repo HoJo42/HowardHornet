@@ -4,19 +4,24 @@ import SOTAlib.Gyro.SOTA_Gyro;
 import SOTAlib.Pneumatics.DoubleSolenoidShifter;
 import SOTAlib.Pneumatics.GearShifter;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Subsystem.Configs.SwerveDriveConfig;
 
 public class SwerveDrive extends SubsystemBase {
   private SwerveDriveKinematics mKinematics;
+  private SwerveDriveOdometry mOdometry;
+  private Pose2d currentPose;
   private SwerveModule[] modules;
   private SOTA_Gyro gyro;
   private GearShifter shifter;
   private boolean fieldCentric;
-
 
   public SwerveDrive(SwerveModule[] modules, SOTA_Gyro gyro, GearShifter shifter, SwerveDriveConfig config) {
     this.modules = modules;
@@ -28,9 +33,12 @@ public class SwerveDrive extends SubsystemBase {
     }
     this.fieldCentric = true;
     this.mKinematics = config.generateKinematics();
+    this.mOdometry = new SwerveDriveOdometry(mKinematics, new Rotation2d(gyro.getAngle()), new SwerveModulePosition[] {
+        modules[0].getPosition(), modules[1].getPosition(), modules[2].getPosition(), modules[3].getPosition()
+    });
   }
 
-  public void drive (double frwrd, double strf, double rttn) {
+  public void drive(double frwrd, double strf, double rttn) {
     frwrd = MathUtil.clamp(frwrd, -1, 1) * getLowestMaxSpeed();
     strf = MathUtil.clamp(strf, -1, 1) * getLowestMaxSpeed();
     rttn = MathUtil.clamp(rttn, -1, 1) * getLowestMaxAngularVelocity();
@@ -56,7 +64,7 @@ public class SwerveDrive extends SubsystemBase {
   public void toggleFieldCentric() {
     if (fieldCentric) {
       fieldCentric = false;
-    }else {
+    } else {
       fieldCentric = true;
     }
   }
@@ -64,7 +72,10 @@ public class SwerveDrive extends SubsystemBase {
   public double getLowestMaxSpeed() {
     double output = modules[0].getCurrentMaxSpeed();
     for (SwerveModule loopModule : modules) {
-      if (loopModule.getCurrentMaxSpeed() < output) {output = loopModule.getCurrentMaxSpeed();};
+      if (loopModule.getCurrentMaxSpeed() < output) {
+        output = loopModule.getCurrentMaxSpeed();
+      }
+      ;
     }
     return output;
   }
@@ -72,7 +83,10 @@ public class SwerveDrive extends SubsystemBase {
   public double getLowestMaxAngularVelocity() {
     double output = modules[0].getMaxAngularVelocity();
     for (SwerveModule loopModule : modules) {
-      if (loopModule.getMaxAngularVelocity() < output) {output = loopModule.getMaxAngularVelocity();};
+      if (loopModule.getMaxAngularVelocity() < output) {
+        output = loopModule.getMaxAngularVelocity();
+      }
+      ;
     }
     return output;
   }
@@ -92,7 +106,22 @@ public class SwerveDrive extends SubsystemBase {
     shift(0);
   }
 
-public void resetGyro() {
+  public void resetGyro() {
     gyro.resetAngle();
-}
+    updatePose();
+  }
+
+  public void updatePose() {
+    Rotation2d gyroAngle = new Rotation2d(gyro.getAngle());
+
+    currentPose = mOdometry.update(gyroAngle, new SwerveModulePosition[] {
+        modules[0].getPosition(), modules[1].getPosition(), modules[2].getPosition(), modules[3].getPosition()
+    });
+
+  }
+
+  @Override
+  public void periodic() {
+    updatePose();
+  }
 }

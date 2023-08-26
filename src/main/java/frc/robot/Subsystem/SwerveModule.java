@@ -4,20 +4,26 @@ import java.util.function.IntSupplier;
 
 import SOTAlib.Encoder.Absolute.SOTA_AbsoulteEncoder;
 import SOTAlib.MotorController.SOTA_MotorController;
+import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Subsystem.Configs.SwerveModuleConfig;
 
 public class SwerveModule extends SubsystemBase {
 
   private String moduleName;
+  private Double measuredDistanceMeters;
+  private Double previousDistance;
 
   private SOTA_MotorController speedMotor;
   private ProfiledPIDController speedPID;
@@ -40,11 +46,17 @@ public class SwerveModule extends SubsystemBase {
   private ShuffleboardTab sTab;
   private GenericEntry encoderPosEntry;
 
+  private SimDeviceSim simAngleEncoder;
+  private SimDouble simEncoderPosition;
+
   public SwerveModule(SOTA_MotorController speedMotor,
       SOTA_MotorController rotationMotor,
       SwerveModuleConfig config,
       SOTA_AbsoulteEncoder encoder,
       IntSupplier gearSupplier) {
+
+    this.measuredDistanceMeters = 0.0;
+    this.previousDistance = 0.0;
 
     this.sTab = Shuffleboard.getTab("Swerve");
     this.moduleName = config.getName();
@@ -70,7 +82,11 @@ public class SwerveModule extends SubsystemBase {
     anglePID.enableContinuousInput(0, 1);
 
     this.angleEncoder = encoder;
-
+    if (RobotBase.isSimulation()) {
+      this.simAngleEncoder = new SimDeviceSim("AnalogEncoder", encoder.getPort());
+      this.simEncoderPosition = simAngleEncoder.getDouble("Position");
+      simEncoderPosition.set(-1.7);
+    }
     this.angleFF = new SimpleMotorFeedforward(config.getAngleS(), config.getAngleV());
 
     this.encoderPosEntry = sTab.add("Encoder Output:" + moduleName, 0.0).getEntry();
@@ -115,8 +131,21 @@ public class SwerveModule extends SubsystemBase {
     return kMaxAngluarVelcity;
   }
 
+  public Double getDistance() {
+    return measuredDistanceMeters;
+  }
+
+  public SwerveModulePosition getPosition() {
+    return new SwerveModulePosition(getDistance(), getRotation2d());
+  }
+
   public void updateGear() {
     this.currentGear = gearSupplier.getAsInt();
+  }
+
+  public void updateDistance() {
+    measuredDistanceMeters += (speedMotor.getEncoderPosition() - previousDistance) * (kWheelCircumference / gearRatio[currentGear]);
+    previousDistance = speedMotor.getEncoderPosition();
   }
 
   public void updateSB() {
@@ -125,6 +154,12 @@ public class SwerveModule extends SubsystemBase {
 
   @Override
   public void periodic() {
-      updateSB();
+    updateDistance();
+    updateSB();
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    updateSB();
   }
 }
