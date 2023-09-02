@@ -155,8 +155,8 @@ public class RobotContainer {
   private void configureBindings() {
     mController.a().whileTrue(new IntakeCommand(mIntake, mDelivery)).onFalse(Commands
         .parallel(new RunCommand(() -> mIntake.stop(), mIntake), new RunCommand(() -> mDelivery.stop(), mDelivery)));
-    mController.b().whileTrue(new RunCommand(() -> mDelivery.intake(), mDelivery));
-    mController.y().whileTrue(new RunCommand(() -> mDelivery.outTake(), mDelivery));
+    mController.b().whileTrue(new RunCommand(() -> mDelivery.intake(), mDelivery)).onFalse(new RunCommand(() -> mDelivery.stop(), mDelivery));
+    mController.y().whileTrue(new RunCommand(() -> mDelivery.outTake(), mDelivery)).onFalse(new RunCommand(() -> mDelivery.stop(), mDelivery));
     mController.x().whileTrue(new ShootCommand(mShooter, mDelivery));
     mController.leftTrigger().onTrue(new RunCommand(() -> mShooter.hoodDown(), mShooter));
     mController.rightTrigger().onTrue(new RunCommand(() -> mShooter.hoodUp(), mShooter));
