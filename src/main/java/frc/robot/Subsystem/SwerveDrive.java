@@ -11,6 +11,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Subsystem.Configs.SwerveDriveConfig;
 
@@ -59,6 +60,14 @@ public class SwerveDrive extends SubsystemBase {
 
     for (int i = 0; i < moduleStates.length; i++) {
       modules[i].setModule(moduleStates[i]);
+    }
+  }
+
+  public void autoDrive(SwerveModuleState[] states) {
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, getLowestMaxSpeed());
+
+    for (int i = 0; i < states.length; i++) {
+      modules[i].setModule(states[i]);
     }
   }
 
@@ -121,6 +130,19 @@ public class SwerveDrive extends SubsystemBase {
 
   }
 
+  public void resetPose(Pose2d newPose) {
+    mOdometry.resetPosition(new Rotation2d(gyro.getAngle()), new SwerveModulePosition[] {
+        modules[0].getPosition(), modules[1].getPosition(), modules[2].getPosition(), modules[3].getPosition()
+    }, newPose);
+  }
+
+  public Pose2d getPose() {
+    return mOdometry.getPoseMeters();
+  }
+
+  public SwerveDriveKinematics getKinematics() { 
+    return mKinematics;
+  } 
   @Override
   public void periodic() {
     updatePose();
