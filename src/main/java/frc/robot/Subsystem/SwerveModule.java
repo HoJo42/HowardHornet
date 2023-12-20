@@ -27,7 +27,7 @@ public class SwerveModule extends SubsystemBase {
   private Double previousDistance;
 
   private SOTA_MotorController speedMotor;
-  private ProfiledPIDController speedPID;
+  private PIDController speedPID;
   private SimpleMotorFeedforward speedFF;
 
   private SOTA_MotorController angleMotor;
@@ -40,7 +40,7 @@ public class SwerveModule extends SubsystemBase {
   private double[] maxSpeeds = { 0, 0 };
   private int currentGear; // 0 low, 1 high
   private IntSupplier gearSupplier;
-  private double kMaxAngluarVelcity;
+  private double kMaxAngluarVelcity = 2 * Math.PI;
   private final double kRotationsToRadians = 6.283185;
   private final double kRadiansToRotations = 0.159155;
 
@@ -72,8 +72,7 @@ public class SwerveModule extends SubsystemBase {
     updateGear();
 
     this.speedMotor = speedMotor;
-    this.speedPID = new ProfiledPIDController(config.getSpeedP(), config.getSpeedI(), config.getSpeedD(),
-        new Constraints(config.getSpeedMaxVelocity(), config.getSpeedMaxAcceleration()));
+    this.speedPID = new PIDController(config.getSpeedP(), config.getSpeedI(), config.getSpeedD());
 
     this.speedFF = new SimpleMotorFeedforward(config.getSpeedS(), config.getSpeedV());
 
