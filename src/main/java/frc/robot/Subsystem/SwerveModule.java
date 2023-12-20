@@ -5,6 +5,7 @@ import java.util.function.IntSupplier;
 import SOTAlib.Encoder.Absolute.SOTA_AbsoulteEncoder;
 import SOTAlib.MotorController.SOTA_MotorController;
 import edu.wpi.first.hal.SimDouble;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -31,8 +32,8 @@ public class SwerveModule extends SubsystemBase {
 
   private SOTA_MotorController angleMotor;
   private SOTA_AbsoulteEncoder angleEncoder;
-  private ProfiledPIDController anglePID;
-  private SimpleMotorFeedforward angleFF;
+  private PIDController anglePID;
+  private double angleFF;
 
   private double kWheelCircumference;
   private double[] gearRatio = { 0, 0 };
@@ -77,8 +78,7 @@ public class SwerveModule extends SubsystemBase {
     this.speedFF = new SimpleMotorFeedforward(config.getSpeedS(), config.getSpeedV());
 
     this.angleMotor = rotationMotor;
-    this.anglePID = new ProfiledPIDController(config.getAngleP(), config.getAngleI(), config.getAngleD(),
-        new Constraints(config.getAngleMaxVelocity(), config.getAngleMaxAcceleration()));
+    this.anglePID = new PIDController(config.getAngleP(), config.getAngleI(), config.getAngleD());
     anglePID.enableContinuousInput(0, 1);
 
     this.angleEncoder = encoder;
@@ -87,7 +87,7 @@ public class SwerveModule extends SubsystemBase {
       this.simEncoderPosition = simAngleEncoder.getDouble("Position");
       simEncoderPosition.set(-1.7);
     }
-    this.angleFF = new SimpleMotorFeedforward(config.getAngleS(), config.getAngleV());
+    this.angleFF = config.getAngleFF();
 
     this.encoderPosEntry = sTab.add("Encoder Output:" + moduleName, 0.0).getEntry();
   }
@@ -97,7 +97,7 @@ public class SwerveModule extends SubsystemBase {
 
     double angleRotations = radsToRotations(state.angle.getRadians());
     double anglePIDOutput = anglePID.calculate(angleMotor.getEncoderPosition(), angleRotations);
-    double angleFFOutput = angleFF.calculate(anglePID.getSetpoint().velocity);
+    double angleFFOutput = angleFF * Math.signum(anglePIDOutput);
 
     double speedRPM = metersPerSecondToRPM(state.speedMetersPerSecond);
     double speedPIDOutput = speedPID.calculate(speedMotor.getEncoderVelocity(), speedRPM);

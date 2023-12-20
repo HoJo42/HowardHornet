@@ -15,6 +15,7 @@ public class SwerveModuleConfig {
     private double angleD;
     private double angleMaxVelocity;
     private double angleMaxAcceleration;
+    private double angleFF;
 
     private double angleS;
     private double angleV;
@@ -38,6 +39,10 @@ public class SwerveModuleConfig {
 
     public double getHighGearMaxSpeed() {
         return this.highGearMaxSpeed;
+    }
+
+    public double getAngleFF() {
+        return this.angleFF;
     }
 
     // public double getSpeedCountsPerRevolution() {
