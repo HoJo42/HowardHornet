@@ -12,8 +12,6 @@
     "angleD": 0.0,
     "angleS": 0.0,
     "angleV": 0.0,
-    "angleMaxVelocity": 6.28,
-    "angleMaxAcceleration": 70.0,
     "angleFF": 0.0,
 
     "speedP": 0.0,
