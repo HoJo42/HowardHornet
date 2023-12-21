@@ -106,7 +106,6 @@ public class SwerveDrive extends SubsystemBase {
     for (SwerveModule loopModule : modules) {
       loopModule.updateGear();
     }
-    System.out.println("shift loop finished");
   }
 
   public void shiftUp() {
