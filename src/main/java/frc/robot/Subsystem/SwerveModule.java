@@ -3,6 +3,7 @@ package frc.robot.Subsystem;
 import java.util.function.IntSupplier;
 
 import SOTAlib.Encoder.Absolute.SOTA_AbsoulteEncoder;
+import SOTAlib.Math.Conversions;
 import SOTAlib.MotorController.SOTA_MotorController;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.math.controller.PIDController;
@@ -43,6 +44,8 @@ public class SwerveModule extends SubsystemBase {
 
   private ShuffleboardTab sTab;
   private GenericEntry encoderPosEntry;
+  private GenericEntry angleEntry;
+  private GenericEntry speedEntry;
 
   private SimDeviceSim simAngleEncoder;
   private SimDouble simEncoderPosition;
@@ -86,10 +89,15 @@ public class SwerveModule extends SubsystemBase {
     this.angleFF = config.getAngleFF();
 
     this.encoderPosEntry = sTab.add("Encoder Output:" + moduleName, 0.0).getEntry();
+    this.angleEntry = sTab.add("Requested Angle: " + moduleName, 0.0).getEntry();
+    this.speedEntry = sTab.add("Requested Speed: " + moduleName, 0.0).getEntry();
   }
 
   public void setModule(SwerveModuleState state) {
     state = SwerveModuleState.optimize(state, getRotation2d());
+
+    angleEntry.setDouble(state.angle.getRadians());
+    speedEntry.setDouble(Conversions.metersPerSecToFeetPerSec(state.speedMetersPerSecond));
 
     double angleRotations = radsToRotations(state.angle.getRadians());
     double anglePIDOutput = anglePID.calculate(angleMotor.getEncoderPosition(), angleRotations);

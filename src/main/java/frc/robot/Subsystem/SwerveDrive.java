@@ -1,6 +1,7 @@
 package frc.robot.Subsystem;
 
 import SOTAlib.Gyro.SOTA_Gyro;
+import SOTAlib.Math.Conversions;
 import SOTAlib.Pneumatics.GearShifter;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -10,6 +11,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Subsystem.Configs.SwerveDriveConfig;
 
@@ -22,6 +26,8 @@ public class SwerveDrive extends SubsystemBase {
   private GearShifter shifter;
   private double kMaxAngularVelocity = 2 * Math.PI;
   private boolean fieldCentric;
+  private ShuffleboardTab sTab;
+  private GenericEntry lowestMaxSpeedEntry;
 
   public SwerveDrive(SwerveModule[] modules, SOTA_Gyro gyro, GearShifter shifter, SwerveDriveConfig config) {
     this.modules = modules;
@@ -36,6 +42,9 @@ public class SwerveDrive extends SubsystemBase {
     this.mOdometry = new SwerveDriveOdometry(mKinematics, new Rotation2d(gyro.getAngle()), new SwerveModulePosition[] {
         modules[0].getPosition(), modules[1].getPosition(), modules[2].getPosition(), modules[3].getPosition()
     });
+
+    this.sTab = Shuffleboard.getTab("Swerve");
+    this.lowestMaxSpeedEntry = sTab.add("Drive: LowestMaxSpeed", 0.0).getEntry();
   }
 
   public void drive(double frwrd, double strf, double rttn) {
@@ -47,7 +56,7 @@ public class SwerveDrive extends SubsystemBase {
 
   /**
    * 
-   * @param speeds Raw inputs in a ChassisSpeeds object
+   * @param speeds requested speeds in a ChassisSpeeds object
    */
   public void drive(ChassisSpeeds speeds) {
     if (fieldCentric) {
@@ -55,7 +64,7 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(speeds);
-    SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, getLowestMaxSpeed());
+    SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, Conversions.feetPerSecToMetersPerSec(getLowestMaxSpeed()));
 
     for (int i = 0; i < moduleStates.length; i++) {
       modules[i].setModule(moduleStates[i]);
@@ -63,7 +72,7 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   public void autoDrive(SwerveModuleState[] states) {
-    SwerveDriveKinematics.desaturateWheelSpeeds(states, getLowestMaxSpeed());
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, Conversions.feetPerSecToMetersPerSec(getLowestMaxSpeed()));
 
     for (int i = 0; i < states.length; i++) {
       modules[i].setModule(states[i]);
@@ -78,13 +87,16 @@ public class SwerveDrive extends SubsystemBase {
     }
   }
 
+  /**
+   * gets the max speed of the slowest module in the drivetrain
+   * @return lowest speed in FEET PER SECOND
+   */
   public double getLowestMaxSpeed() {
     double output = modules[0].getCurrentMaxSpeed();
     for (SwerveModule loopModule : modules) {
       if (loopModule.getCurrentMaxSpeed() < output) {
         output = loopModule.getCurrentMaxSpeed();
       }
-      ;
     }
     return output;
   }
@@ -94,6 +106,7 @@ public class SwerveDrive extends SubsystemBase {
     for (SwerveModule loopModule : modules) {
       loopModule.updateGear();
     }
+    System.out.println("shift loop finished");
   }
 
   public void shiftUp() {
@@ -128,11 +141,13 @@ public class SwerveDrive extends SubsystemBase {
     return mOdometry.getPoseMeters();
   }
 
-  public SwerveDriveKinematics getKinematics() { 
+  public SwerveDriveKinematics getKinematics() {
     return mKinematics;
-  } 
+  }
+
   @Override
   public void periodic() {
     updatePose();
+    lowestMaxSpeedEntry.setDouble(getLowestMaxSpeed());
   }
 }
