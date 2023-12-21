@@ -40,7 +40,6 @@ public class SwerveModule extends SubsystemBase {
   private double[] maxSpeeds = { 0, 0 };
   private int currentGear; // 0 low, 1 high
   private IntSupplier gearSupplier;
-  private double kMaxAngluarVelcity = 2 * Math.PI;
   private final double kRotationsToRadians = 6.283185;
   private final double kRadiansToRotations = 0.159155;
 
@@ -124,10 +123,6 @@ public class SwerveModule extends SubsystemBase {
 
   public double getCurrentMaxSpeed() {
     return maxSpeeds[currentGear];
-  }
-
-  public double getMaxAngularVelocity() {
-    return kMaxAngluarVelcity;
   }
 
   public Double getDistance() {

@@ -1,7 +1,6 @@
 package frc.robot.Subsystem;
 
 import SOTAlib.Gyro.SOTA_Gyro;
-import SOTAlib.Pneumatics.DoubleSolenoidShifter;
 import SOTAlib.Pneumatics.GearShifter;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -11,7 +10,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Subsystem.Configs.SwerveDriveConfig;
 
@@ -22,6 +20,7 @@ public class SwerveDrive extends SubsystemBase {
   private SwerveModule[] modules;
   private SOTA_Gyro gyro;
   private GearShifter shifter;
+  private double kMaxAngularVelocity = 2 * Math.PI;
   private boolean fieldCentric;
 
   public SwerveDrive(SwerveModule[] modules, SOTA_Gyro gyro, GearShifter shifter, SwerveDriveConfig config) {
@@ -42,7 +41,7 @@ public class SwerveDrive extends SubsystemBase {
   public void drive(double frwrd, double strf, double rttn) {
     frwrd = MathUtil.clamp(frwrd, -1, 1) * getLowestMaxSpeed();
     strf = MathUtil.clamp(strf, -1, 1) * getLowestMaxSpeed();
-    rttn = MathUtil.clamp(rttn, -1, 1) * getLowestMaxAngularVelocity();
+    rttn = MathUtil.clamp(rttn, -1, 1) * kMaxAngularVelocity;
     drive(new ChassisSpeeds(frwrd, strf, rttn));
   }
 
@@ -84,17 +83,6 @@ public class SwerveDrive extends SubsystemBase {
     for (SwerveModule loopModule : modules) {
       if (loopModule.getCurrentMaxSpeed() < output) {
         output = loopModule.getCurrentMaxSpeed();
-      }
-      ;
-    }
-    return output;
-  }
-
-  public double getLowestMaxAngularVelocity() {
-    double output = modules[0].getMaxAngularVelocity();
-    for (SwerveModule loopModule : modules) {
-      if (loopModule.getMaxAngularVelocity() < output) {
-        output = loopModule.getMaxAngularVelocity();
       }
       ;
     }
