@@ -162,8 +162,8 @@ public class RobotContainer {
     mController.rightTrigger().onTrue(new RunCommand(() -> mShooter.hoodUp(), mShooter));
 
     dController.start().onTrue(new InstantCommand(() -> mSwerveDrive.resetGyro(), mSwerveDrive));
-    dController.leftTrigger().onTrue(new RunCommand(() -> mSwerveDrive.shiftDown(), mSwerveDrive));
-    dController.rightTrigger().onTrue(new RunCommand(() -> mSwerveDrive.shiftUp(), mSwerveDrive));
+    dController.leftTrigger().onTrue(Commands.runOnce(() -> mSwerveDrive.shiftDown(), mSwerveDrive));
+    dController.rightTrigger().onTrue(Commands.runOnce(() -> mSwerveDrive.shiftUp(), mSwerveDrive));
   }
 
   public Command getAutonomousCommand() {
