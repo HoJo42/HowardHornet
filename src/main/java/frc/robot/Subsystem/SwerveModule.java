@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Subsystem.Configs.SwerveModuleConfig;
 
@@ -49,6 +50,7 @@ public class SwerveModule extends SubsystemBase {
 
   private SimDeviceSim simAngleEncoder;
   private SimDouble simEncoderPosition;
+  private double positionTolerance = 0.05;
 
   public SwerveModule(SOTA_MotorController speedMotor,
       SOTA_MotorController rotationMotor,
@@ -79,6 +81,7 @@ public class SwerveModule extends SubsystemBase {
     this.angleMotor = rotationMotor;
     this.anglePID = new PIDController(config.getAngleP(), config.getAngleI(), config.getAngleD());
     anglePID.enableContinuousInput(0, 1);
+    anglePID.setTolerance(positionTolerance);
 
     this.angleEncoder = encoder;
     if (RobotBase.isSimulation()) {
@@ -100,7 +103,7 @@ public class SwerveModule extends SubsystemBase {
     speedEntry.setDouble(Conversions.metersPerSecToFeetPerSec(state.speedMetersPerSecond));
 
     double angleRotations = radsToRotations(state.angle.getRadians());
-    double anglePIDOutput = anglePID.calculate(angleMotor.getEncoderPosition(), angleRotations);
+    double anglePIDOutput = anglePID.calculate(angleEncoder.getConstrainedPositon(), angleRotations);
     double angleFFOutput = angleFF * Math.signum(anglePIDOutput);
 
     double speedRPM = metersPerSecondToRPM(state.speedMetersPerSecond);
@@ -109,6 +112,9 @@ public class SwerveModule extends SubsystemBase {
 
     angleMotor.setVoltage(state.speedMetersPerSecond == 0 ? 0 : anglePIDOutput + angleFFOutput);
     speedMotor.setVoltage(speedPIDOutput + speedFFOutput);
+    // angleMotor.setVoltage(0);
+    // speedMotor.setVoltage(2.0);
+    // SmartDashboard.putNumber("Speed at 2V", speedMotor.getEncoderVelocity());
   }
 
   private Rotation2d getRotation2d() {
@@ -150,6 +156,9 @@ public class SwerveModule extends SubsystemBase {
 
   public void updateSB() {
     encoderPosEntry.setDouble(angleEncoder.getConstrainedPositon());
+    SmartDashboard.putNumber("Angle encoder reg: " + moduleName, angleEncoder.getPosition());
+    SmartDashboard.putNumber("Angle Encoder nooff" + moduleName, angleEncoder.getPositionNoOffset());
+    SmartDashboard.putNumber("Constrained Pos: " + moduleName, angleEncoder.getConstrainedPositon());
   }
 
   @Override
@@ -162,4 +171,5 @@ public class SwerveModule extends SubsystemBase {
   public void simulationPeriodic() {
     updateSB();
   }
+  
 }
