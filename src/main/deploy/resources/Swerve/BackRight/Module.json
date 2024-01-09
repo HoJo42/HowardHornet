@@ -7,7 +7,7 @@
     "lowGearMaxSpeed": 7.6575,
     "highGearMaxSpeed": 16.11,
     
-    "angleP": 14.0,
+    "angleP": 12.0,
     "angleI": 0.0,
     "angleD": 1.0,
     "angleFF": 0.0,
