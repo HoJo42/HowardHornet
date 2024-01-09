@@ -84,11 +84,6 @@ public class SwerveModule extends SubsystemBase {
     anglePID.setTolerance(positionTolerance);
 
     this.angleEncoder = encoder;
-    if (RobotBase.isSimulation()) {
-      this.simAngleEncoder = new SimDeviceSim("AnalogEncoder", encoder.getPort());
-      this.simEncoderPosition = simAngleEncoder.getDouble("Position");
-      simEncoderPosition.set(-1.7);
-    }
     this.angleFF = config.getAngleFF();
 
     this.encoderPosEntry = sTab.add("Encoder Output:" + moduleName, 0.0).getEntry();
@@ -111,7 +106,7 @@ public class SwerveModule extends SubsystemBase {
     double speedFFOutput = speedFF.calculate(speedRPM);
 
     angleMotor.setVoltage(state.speedMetersPerSecond == 0 ? 0 : anglePIDOutput + angleFFOutput);
-    speedMotor.setVoltage(speedPIDOutput + speedFFOutput);
+    // speedMotor.setVoltage(speedPIDOutput + speedFFOutput);
     // angleMotor.setVoltage(0);
     // speedMotor.setVoltage(2.0);
     // SmartDashboard.putNumber("Speed at 2V", speedMotor.getEncoderVelocity());
@@ -156,7 +151,6 @@ public class SwerveModule extends SubsystemBase {
 
   public void updateSB() {
     encoderPosEntry.setDouble(angleEncoder.getConstrainedPositon());
-    SmartDashboard.putNumber("Angle encoder reg: " + moduleName, angleEncoder.getPosition());
     SmartDashboard.putNumber("Angle Encoder nooff" + moduleName, angleEncoder.getPositionNoOffset());
     SmartDashboard.putNumber("Constrained Pos: " + moduleName, angleEncoder.getConstrainedPositon());
   }
