@@ -12,7 +12,7 @@
     "angleD": 1.0,
     "angleFF": 0.0,
 
-    "speedP": 0.0,
+    "speedP": 0.5,
     "speedI": 0.0,
     "speedD": 0.0,
     "speedS": 0.6069,

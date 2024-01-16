@@ -124,11 +124,11 @@ public class RobotContainer {
       SwerveDriveConfig swerveConfig = mConfigUtils.readFromClassPath(SwerveDriveConfig.class, "Swerve/Drive");
 
       SwerveModule[] swerveModules = {
-          initModule("Swerve/FrontLeft/Speed", "Swerve/FrontLeft/Angle", "Swerve/FrontLeft/Module",
-              "Swerve/FrontLeft/Encoder",
-              swerveShifter::getGear),
           initModule("Swerve/FrontRight/Speed", "Swerve/FrontRight/Angle", "Swerve/FrontRight/Module",
               "Swerve/FrontRight/Encoder",
+              swerveShifter::getGear),
+          initModule("Swerve/FrontLeft/Speed", "Swerve/FrontLeft/Angle", "Swerve/FrontLeft/Module",
+              "Swerve/FrontLeft/Encoder",
               swerveShifter::getGear),
           initModule("Swerve/BackLeft/Speed", "Swerve/BackLeft/Angle", "Swerve/BackLeft/Module",
               "Swerve/BackLeft/Encoder",

@@ -12,7 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
@@ -107,9 +107,6 @@ public class SwerveModule extends SubsystemBase {
 
     angleMotor.setVoltage(state.speedMetersPerSecond == 0 ? 0 : anglePIDOutput + angleFFOutput);
     // speedMotor.setVoltage(speedPIDOutput + speedFFOutput);
-    // angleMotor.setVoltage(0);
-    // speedMotor.setVoltage(2.0);
-    // SmartDashboard.putNumber("Speed at 2V", speedMotor.getEncoderVelocity());
   }
 
   private Rotation2d getRotation2d() {
@@ -151,7 +148,7 @@ public class SwerveModule extends SubsystemBase {
 
   public void updateSB() {
     encoderPosEntry.setDouble(angleEncoder.getConstrainedPositon());
-    SmartDashboard.putNumber("Angle Encoder nooff" + moduleName, angleEncoder.getPositionNoOffset());
+    SmartDashboard.putNumber("Angle Encoder nooff" + moduleName, angleEncoder.getRawPosition());
     SmartDashboard.putNumber("Constrained Pos: " + moduleName, angleEncoder.getConstrainedPositon());
   }
 
