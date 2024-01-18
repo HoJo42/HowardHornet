@@ -94,7 +94,7 @@ public class SwerveModule extends SubsystemBase {
   public void setModule(SwerveModuleState state) {
     state = SwerveModuleState.optimize(state, getRotation2d());
 
-    angleEntry.setDouble(state.angle.getRadians());
+    angleEntry.setDouble(radsToRotations(state.angle.getRadians()));
     speedEntry.setDouble(Conversions.metersPerSecToFeetPerSec(state.speedMetersPerSecond));
 
     double angleRotations = radsToRotations(state.angle.getRadians());
@@ -148,7 +148,6 @@ public class SwerveModule extends SubsystemBase {
 
   public void updateSB() {
     encoderPosEntry.setDouble(angleEncoder.getConstrainedPositon());
-    SmartDashboard.putNumber("Angle Encoder nooff" + moduleName, angleEncoder.getRawPosition());
     SmartDashboard.putNumber("Constrained Pos: " + moduleName, angleEncoder.getConstrainedPositon());
   }
 
