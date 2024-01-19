@@ -36,8 +36,8 @@ public class SwerveModule extends SubsystemBase {
   private double angleFF;
 
   private double kWheelCircumference;
-  private double[] gearRatio = { 0, 0 };
-  private double[] maxSpeeds = { 0, 0 };
+  private double[] gearRatio = new double[2];
+  private double[] maxSpeeds = new double[2];
   private int currentGear; // 0 low, 1 high
   private IntSupplier gearSupplier;
   private final double kRotationsToRadians = 6.283185;
@@ -45,6 +45,7 @@ public class SwerveModule extends SubsystemBase {
 
   private ShuffleboardTab sTab;
   private GenericEntry encoderPosEntry;
+  private GenericEntry liveSpeedEntry;
   private GenericEntry angleEntry;
   private GenericEntry speedEntry;
 
@@ -89,13 +90,14 @@ public class SwerveModule extends SubsystemBase {
     this.encoderPosEntry = sTab.add("Encoder Output:" + moduleName, 0.0).getEntry();
     this.angleEntry = sTab.add("Requested Angle: " + moduleName, 0.0).getEntry();
     this.speedEntry = sTab.add("Requested Speed: " + moduleName, 0.0).getEntry();
+    this.liveSpeedEntry = sTab.add("Actual speed: " + moduleName, 0.0).getEntry();
   }
 
   public void setModule(SwerveModuleState state) {
     state = SwerveModuleState.optimize(state, getRotation2d());
 
     angleEntry.setDouble(radsToRotations(state.angle.getRadians()));
-    speedEntry.setDouble(Conversions.metersPerSecToFeetPerSec(state.speedMetersPerSecond));
+    speedEntry.setDouble(metersPerSecondToRPM(state.speedMetersPerSecond));
 
     double angleRotations = radsToRotations(state.angle.getRadians());
     double anglePIDOutput = anglePID.calculate(angleEncoder.getConstrainedPositon(), angleRotations);
@@ -106,7 +108,7 @@ public class SwerveModule extends SubsystemBase {
     double speedFFOutput = speedFF.calculate(speedRPM);
 
     angleMotor.setVoltage(state.speedMetersPerSecond == 0 ? 0 : anglePIDOutput + angleFFOutput);
-    // speedMotor.setVoltage(speedPIDOutput + speedFFOutput);
+    speedMotor.setVoltage(speedPIDOutput + speedFFOutput);
   }
 
   private Rotation2d getRotation2d() {
@@ -122,7 +124,7 @@ public class SwerveModule extends SubsystemBase {
   }
 
   private double metersPerSecondToRPM(double MPS) {
-    return (60 / ((2 * Math.PI) * (kWheelCircumference / 2))) * MPS;
+    return (60 / ((2 * Math.PI) * (kWheelCircumference / 2))) * MPS * gearRatio[currentGear];
   }
 
   public double getCurrentMaxSpeed() {
@@ -142,12 +144,14 @@ public class SwerveModule extends SubsystemBase {
   }
 
   public void updateDistance() {
-    measuredDistanceMeters += (speedMotor.getEncoderPosition() - previousDistance) * (kWheelCircumference / gearRatio[currentGear]);
+    measuredDistanceMeters += (speedMotor.getEncoderPosition() - previousDistance)
+        * (kWheelCircumference / gearRatio[currentGear]);
     previousDistance = speedMotor.getEncoderPosition();
   }
 
   public void updateSB() {
     encoderPosEntry.setDouble(angleEncoder.getConstrainedPositon());
+    liveSpeedEntry.setDouble(speedMotor.getEncoderVelocity());
     SmartDashboard.putNumber("Constrained Pos: " + moduleName, angleEncoder.getConstrainedPositon());
   }
 
@@ -161,5 +165,5 @@ public class SwerveModule extends SubsystemBase {
   public void simulationPeriodic() {
     updateSB();
   }
-  
+
 }
