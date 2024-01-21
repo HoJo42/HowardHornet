@@ -1,6 +1,6 @@
 {
     "port": 3,
-    "encoderOffset": 1.68,
+    "encoderOffset": 4.1,
     "encoderType": "ANALOG",
     "isInverted": true
 }
