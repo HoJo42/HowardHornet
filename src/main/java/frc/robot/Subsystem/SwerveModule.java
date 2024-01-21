@@ -3,20 +3,15 @@ package frc.robot.Subsystem;
 import java.util.function.IntSupplier;
 
 import SOTAlib.Encoder.Absolute.SOTA_AbsoulteEncoder;
-import SOTAlib.Math.Conversions;
 import SOTAlib.MotorController.SOTA_MotorController;
-import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Subsystem.Configs.SwerveModuleConfig;
 
@@ -44,13 +39,12 @@ public class SwerveModule extends SubsystemBase {
   private final double kRadiansToRotations = 0.159155;
 
   private ShuffleboardTab sTab;
-  private GenericEntry encoderPosEntry;
+  private GenericEntry liveRotationPosEntr;
+  private GenericEntry rawEncoderPosEntr;
   private GenericEntry liveSpeedEntry;
   private GenericEntry angleEntry;
   private GenericEntry speedEntry;
 
-  private SimDeviceSim simAngleEncoder;
-  private SimDouble simEncoderPosition;
   private double positionTolerance = 0.05;
 
   public SwerveModule(SOTA_MotorController speedMotor,
@@ -87,17 +81,18 @@ public class SwerveModule extends SubsystemBase {
     this.angleEncoder = encoder;
     this.angleFF = config.getAngleFF();
 
-    this.encoderPosEntry = sTab.add("Encoder Output:" + moduleName, 0.0).getEntry();
+    this.rawEncoderPosEntr = sTab.add("Raw Encoder Output:" + moduleName, 0.0).getEntry();
     this.angleEntry = sTab.add("Requested Angle: " + moduleName, 0.0).getEntry();
     this.speedEntry = sTab.add("Requested Speed: " + moduleName, 0.0).getEntry();
     this.liveSpeedEntry = sTab.add("Actual speed: " + moduleName, 0.0).getEntry();
+    this.liveRotationPosEntr = sTab.add("Constrained Pos: " + moduleName, 0.0).getEntry();
   }
 
   public void setModule(SwerveModuleState state) {
     state = SwerveModuleState.optimize(state, getRotation2d());
 
     angleEntry.setDouble(radsToRotations(state.angle.getRadians()));
-    speedEntry.setDouble(metersPerSecondToRPM(state.speedMetersPerSecond));
+    speedEntry.setDouble(state.speedMetersPerSecond);
 
     double angleRotations = radsToRotations(state.angle.getRadians());
     double anglePIDOutput = anglePID.calculate(angleEncoder.getConstrainedPositon(), angleRotations);
@@ -108,7 +103,7 @@ public class SwerveModule extends SubsystemBase {
     double speedFFOutput = speedFF.calculate(speedRPM);
 
     angleMotor.setVoltage(state.speedMetersPerSecond == 0 ? 0 : anglePIDOutput + angleFFOutput);
-    speedMotor.setVoltage(speedPIDOutput + speedFFOutput);
+    speedMotor.setVoltage(metersPerSecondToRPM(state.speedMetersPerSecond)); //TThis is bad
   }
 
   private Rotation2d getRotation2d() {
@@ -150,9 +145,9 @@ public class SwerveModule extends SubsystemBase {
   }
 
   public void updateSB() {
-    encoderPosEntry.setDouble(angleEncoder.getConstrainedPositon());
+    rawEncoderPosEntr.setDouble(angleEncoder.getRawPosition());
+    liveRotationPosEntr.setDouble(angleEncoder.getConstrainedPositon());
     liveSpeedEntry.setDouble(speedMotor.getEncoderVelocity());
-    SmartDashboard.putNumber("Constrained Pos: " + moduleName, angleEncoder.getConstrainedPositon());
   }
 
   @Override

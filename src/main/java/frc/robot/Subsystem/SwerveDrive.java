@@ -48,8 +48,8 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   public void drive(double frwrd, double strf, double rttn) {
-    frwrd = MathUtil.clamp(frwrd, -1, 1) * getLowestMaxSpeed();
-    strf = MathUtil.clamp(strf, -1, 1) * getLowestMaxSpeed();
+    frwrd = MathUtil.clamp(frwrd, -1, 1) * Conversions.feetPerSecToMetersPerSec(getLowestMaxSpeed());
+    strf = MathUtil.clamp(strf, -1, 1) * Conversions.feetPerSecToMetersPerSec(getLowestMaxSpeed());
     rttn = MathUtil.clamp(rttn, -1, 1) * kMaxAngularVelocity;
     drive(new ChassisSpeeds(frwrd, strf, rttn));
   }
@@ -64,7 +64,8 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(speeds);
-    SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, Conversions.feetPerSecToMetersPerSec(getLowestMaxSpeed()));
+    SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates,
+        Conversions.feetPerSecToMetersPerSec(getLowestMaxSpeed()));
 
     for (int i = 0; i < moduleStates.length; i++) {
       modules[i].setModule(moduleStates[i]);
@@ -89,6 +90,7 @@ public class SwerveDrive extends SubsystemBase {
 
   /**
    * gets the max speed of the slowest module in the drivetrain
+   * 
    * @return lowest speed in FEET PER SECOND
    */
   public double getLowestMaxSpeed() {
@@ -147,6 +149,6 @@ public class SwerveDrive extends SubsystemBase {
   @Override
   public void periodic() {
     updatePose();
-    lowestMaxSpeedEntry.setDouble(getLowestMaxSpeed());
+    lowestMaxSpeedEntry.setDouble(Conversions.feetPerSecToMetersPerSec(getLowestMaxSpeed()));
   }
 }
