@@ -14,6 +14,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Subsystem.Configs.SwerveDriveConfig;
 
@@ -150,5 +151,7 @@ public class SwerveDrive extends SubsystemBase {
   public void periodic() {
     updatePose();
     lowestMaxSpeedEntry.setDouble(Conversions.feetPerSecToMetersPerSec(getLowestMaxSpeed()));
+    SmartDashboard.putNumber("Current Heading: ", gyro.getAngle());
+    SmartDashboard.putBoolean("FieldCentric:", fieldCentric);
   }
 }

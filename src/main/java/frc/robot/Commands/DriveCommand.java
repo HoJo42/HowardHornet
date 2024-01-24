@@ -36,7 +36,7 @@ public class DriveCommand extends CommandBase {
     double strafe = Math.signum(strafeSup.getAsDouble()) * strafeSup.getAsDouble() * strafeSup.getAsDouble();
     double rotation = Math.signum(rotationSup.getAsDouble()) * rotationSup.getAsDouble() * rotationSup.getAsDouble();
 
-    mSwerveDrive.drive(forward, strafe, rotation);
+    mSwerveDrive.drive(forward, strafe, -rotation);
   }
 
   // Called once the command ends or is interrupted.

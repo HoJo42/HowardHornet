@@ -4,6 +4,7 @@ import java.util.function.IntSupplier;
 
 import SOTAlib.Encoder.Absolute.SOTA_AbsoulteEncoder;
 import SOTAlib.MotorController.SOTA_MotorController;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -70,6 +71,7 @@ public class SwerveModule extends SubsystemBase {
 
     this.speedMotor = speedMotor;
     this.speedPID = new PIDController(config.getSpeedP(), config.getSpeedI(), config.getSpeedD());
+    speedPID.setTolerance(5, 3);
 
     this.speedFF = new SimpleMotorFeedforward(config.getSpeedS(), config.getSpeedV());
 
@@ -92,18 +94,18 @@ public class SwerveModule extends SubsystemBase {
     state = SwerveModuleState.optimize(state, getRotation2d());
 
     angleEntry.setDouble(radsToRotations(state.angle.getRadians()));
-    speedEntry.setDouble(state.speedMetersPerSecond);
+    speedEntry.setDouble(metersPerSecondToRPM(state.speedMetersPerSecond));
 
     double angleRotations = radsToRotations(state.angle.getRadians());
     double anglePIDOutput = anglePID.calculate(angleEncoder.getConstrainedPositon(), angleRotations);
     double angleFFOutput = angleFF * Math.signum(anglePIDOutput);
 
     double speedRPM = metersPerSecondToRPM(state.speedMetersPerSecond);
-    double speedPIDOutput = speedPID.calculate(speedMotor.getEncoderVelocity(), speedRPM);
+    double speedPIDOutput = speedRPM == 0 ? 0 : speedPID.calculate(speedMotor.getEncoderVelocity(), speedRPM);
     double speedFFOutput = speedFF.calculate(speedRPM);
 
     angleMotor.setVoltage(state.speedMetersPerSecond == 0 ? 0 : anglePIDOutput + angleFFOutput);
-    speedMotor.setVoltage(metersPerSecondToRPM(state.speedMetersPerSecond)); //TThis is bad
+    speedMotor.setVoltage((state.speedMetersPerSecond / getCurrentMaxSpeed()) * 12); // This is better
   }
 
   private Rotation2d getRotation2d() {
