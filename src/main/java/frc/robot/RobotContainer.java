@@ -124,11 +124,11 @@ public class RobotContainer {
       SwerveDriveConfig swerveConfig = mConfigUtils.readFromClassPath(SwerveDriveConfig.class, "Swerve/Drive");
 
       SwerveModule[] swerveModules = {
-          initModule("Swerve/FrontLeft/Speed", "Swerve/FrontLeft/Angle", "Swerve/FrontLeft/Module",
-              "Swerve/FrontLeft/Encoder",
-              swerveShifter::getGear),
           initModule("Swerve/FrontRight/Speed", "Swerve/FrontRight/Angle", "Swerve/FrontRight/Module",
               "Swerve/FrontRight/Encoder",
+              swerveShifter::getGear),
+          initModule("Swerve/FrontLeft/Speed", "Swerve/FrontLeft/Angle", "Swerve/FrontLeft/Module",
+              "Swerve/FrontLeft/Encoder",
               swerveShifter::getGear),
           initModule("Swerve/BackLeft/Speed", "Swerve/BackLeft/Angle", "Swerve/BackLeft/Module",
               "Swerve/BackLeft/Encoder",
@@ -155,15 +155,17 @@ public class RobotContainer {
   private void configureBindings() {
     mController.a().whileTrue(new IntakeCommand(mIntake, mDelivery)).onFalse(Commands
         .parallel(new RunCommand(() -> mIntake.stop(), mIntake), new RunCommand(() -> mDelivery.stop(), mDelivery)));
-    mController.b().whileTrue(new RunCommand(() -> mDelivery.intake(), mDelivery)).onFalse(new RunCommand(() -> mDelivery.stop(), mDelivery));
-    mController.y().whileTrue(new RunCommand(() -> mDelivery.outTake(), mDelivery)).onFalse(new RunCommand(() -> mDelivery.stop(), mDelivery));
+    mController.b().whileTrue(new RunCommand(() -> mDelivery.intake(), mDelivery))
+        .onFalse(new RunCommand(() -> mDelivery.stop(), mDelivery));
+    mController.y().whileTrue(new RunCommand(() -> mDelivery.outTake(), mDelivery))
+        .onFalse(new RunCommand(() -> mDelivery.stop(), mDelivery));
     mController.x().whileTrue(new ShootCommand(mShooter, mDelivery));
     mController.leftTrigger().onTrue(new RunCommand(() -> mShooter.hoodDown(), mShooter));
     mController.rightTrigger().onTrue(new RunCommand(() -> mShooter.hoodUp(), mShooter));
 
     dController.start().onTrue(new InstantCommand(() -> mSwerveDrive.resetGyro(), mSwerveDrive));
-    dController.leftTrigger().onTrue(new RunCommand(() -> mSwerveDrive.shiftDown(), mSwerveDrive));
-    dController.rightTrigger().onTrue(new RunCommand(() -> mSwerveDrive.shiftUp(), mSwerveDrive));
+    dController.leftTrigger().onTrue(Commands.runOnce(() -> mSwerveDrive.shiftDown(), mSwerveDrive));
+    dController.rightTrigger().onTrue(Commands.runOnce(() -> mSwerveDrive.shiftUp(), mSwerveDrive));
   }
 
   public Command getAutonomousCommand() {
@@ -196,6 +198,7 @@ public class RobotContainer {
     } catch (NullConfigException e) {
       throw new RuntimeException("Failed to create module", e);
     } catch (Exception e) {
+      e.printStackTrace();
       throw new RuntimeException("Failed to create module", e);
     }
   }

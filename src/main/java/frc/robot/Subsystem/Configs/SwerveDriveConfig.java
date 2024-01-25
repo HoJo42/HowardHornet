@@ -30,12 +30,10 @@ public class SwerveDriveConfig {
      */
     public Translation2d[] generateModuleTranslations() {
         Translation2d[] moduleTranslations = {
-            
-            
+            new Translation2d(getWheelBase() / 2, -getTrackWidth() / 2),
             new Translation2d(getWheelBase() / 2, getTrackWidth() / 2),
-            new Translation2d(-getWheelBase() / 2, getTrackWidth() / 2),
-            new Translation2d(-getWheelBase() / 2, -getTrackWidth() / 2), 
-            new Translation2d(getWheelBase() / 2, -getTrackWidth() / 2)
+            new Translation2d(-getWheelBase() / 2, getTrackWidth() / 2), 
+            new Translation2d(-getWheelBase() / 2, -getTrackWidth() / 2)
         };
         return moduleTranslations;
         
