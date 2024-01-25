@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Subsystem.Configs.SwerveModuleConfig;
 
@@ -105,7 +106,8 @@ public class SwerveModule extends SubsystemBase {
     double speedFFOutput = speedFF.calculate(speedRPM);
 
     angleMotor.setVoltage(state.speedMetersPerSecond == 0 ? 0 : anglePIDOutput + angleFFOutput);
-    speedMotor.setVoltage((state.speedMetersPerSecond / getCurrentMaxSpeed()) * 12); // This is better
+    speedMotor.setVoltage(speedFFOutput);
+    // speedMotor.setVoltage((state.speedMetersPerSecond / getCurrentMaxSpeed()) * 12); // This is better
   }
 
   private Rotation2d getRotation2d() {
@@ -121,7 +123,7 @@ public class SwerveModule extends SubsystemBase {
   }
 
   private double metersPerSecondToRPM(double MPS) {
-    return (60 / ((2 * Math.PI) * (kWheelCircumference / 2))) * MPS * gearRatio[currentGear];
+    return MPS * (60/(0.1016*Math.PI)) * gearRatio[currentGear];
   }
 
   public double getCurrentMaxSpeed() {
